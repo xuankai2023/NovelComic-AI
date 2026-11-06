@@ -1,0 +1,1 @@
+"""NovelComic publisher application."""

@@ -1,0 +1,54 @@
+{
+  "version": "1.0.0",
+  "providers": {
+    "kie": {
+      "label": {
+        "zh": "KIE",
+        "en": "KIE"
+      },
+      "retryConfig": {
+        "maxRetries": 2,
+        "baseDelayMs": 1000
+      }
+    }
+  },
+  "models": {
+    "kie-image-v1": {
+      "provider": "kie",
+      "providerModelId": "z-image",
+      "promptRequired": true,
+      "promptMaxLength": 5000,
+      "supportedInputModalities": [
+        "text"
+      ],
+      "supportedMediaTypes": [
+        "generated_image"
+      ],
+      "params": {
+        "prompt": {
+          "type": "string",
+          "required": true,
+          "minLength": 1,
+          "maxLength": 5000
+        },
+        "negative_prompt": {
+          "type": "string",
+          "required": false,
+          "maxLength": 5000
+        },
+        "aspect_ratio": {
+          "type": "string",
+          "required": false
+        },
+        "size": {
+          "type": "string",
+          "required": false
+        },
+        "seed": {
+          "type": "number",
+          "required": false
+        }
+      }
+    }
+  }
+}

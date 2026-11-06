@@ -1,0 +1,22 @@
+{
+  "name": "@novelcomic/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsup src/index.ts --format esm --clean --sourcemap",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@novelcomic/config": "workspace:*",
+    "@novelcomic/contracts": "workspace:*",
+    "@novelcomic/db": "workspace:*",
+    "@novelcomic/observability": "workspace:*",
+    "@novelcomic/queues": "workspace:*",
+    "@novelcomic/runtime": "workspace:*",
+    "@novelcomic/storage": "workspace:*",
+    "bullmq": "^5.58.5"
+  }
+}

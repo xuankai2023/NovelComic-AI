@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "documentId": "doc-fixture",
+  "projectId": "project-fixture",
+  "name": "中文画布",
+  "colorSpace": "sRGB",
+  "width": 1920,
+  "height": 1080,
+  "resolution": 72,
+  "rootLayerIds": [],
+  "layers": {},
+  "assets": {},
+  "selections": {},
+  "guides": [],
+  "metadata": {"nullable": null, "zero": 0, "float": 1.25}
+}

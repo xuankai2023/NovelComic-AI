@@ -1,0 +1,13 @@
+{
+	"common": {
+		"appName": "OpenCreator Cut",
+		"language": {
+			"label": "Language",
+			"zhCN": "中文",
+			"enUS": "English"
+		},
+		"status": {
+			"loading": "Loading"
+		}
+	}
+}

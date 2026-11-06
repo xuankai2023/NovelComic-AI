@@ -1,0 +1,45 @@
+{
+  "fixture": "comic-ps-loop",
+  "source": {
+    "file": "source.png",
+    "withHairAndMouth": "source-with-hair-mouth.png",
+    "width": 1505,
+    "height": 433
+  },
+  "provenance": {
+    "sourceDirectory": "/Users/xuankai/Desktop/NovelComic-AI/novelcomic-agent/output/huo-fight-v2",
+    "scene": "scene.png",
+    "background": "layers/background.png",
+    "character": "layers/body.png",
+    "cleanPlate": "layers/body-clean.png",
+    "mouth": "layers/mouth-open.png"
+  },
+  "layers": [
+    {
+      "id": "hair",
+      "semantic": "hair",
+      "mask": "expected-hair-mask.png",
+      "sourcePosition": "original canvas coordinates",
+      "region": [
+        730,
+        0,
+        1320,
+        145
+      ]
+    },
+    {
+      "id": "mouth",
+      "semantic": "mouthOpen",
+      "mask": "expected-mouth-mask.png",
+      "sourcePosition": "original canvas coordinates"
+    }
+  ],
+  "selectionMasks": {
+    "magicWand": "expected-wand-mask.png",
+    "colorRange": "expected-color-range-mask.png",
+    "pen": "expected-pen-mask.png"
+  },
+  "cleanPlate": "expected-clean-plate.png",
+  "recomposed": "expected-recomposed.png",
+  "preview": "fixture-preview.png"
+}

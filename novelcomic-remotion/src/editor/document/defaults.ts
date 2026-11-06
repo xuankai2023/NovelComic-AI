@@ -1,0 +1,11 @@
+import {DOCUMENT_SCHEMA_VERSION, type AdjustmentContent, type DocumentState, type LayerNode, type LayerTransform} from './types';
+
+const id = (prefix: string) => `${prefix}-${globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`}`;
+export const defaultTransform = (width: number, height: number): LayerTransform => ({originX: 0, originY: 0, width, height, rotation: 0, scaleX: 1, scaleY: 1, sampling: 'smooth'});
+const base = (name: string, kind: LayerNode['kind'], width: number, height: number): Omit<LayerNode, 'content'> => ({id: id('layer'), name, kind, parentId: null, order: 0, visible: true, locked: false, solo: false, opacity: 1, blendMode: 'normal', transform: defaultTransform(width, height)});
+export const createPixelLayer = (assetId: string, name = 'Pixel Layer', width = 1, height = 1): LayerNode => ({...base(name, 'pixel', width, height), content: {kind: 'pixel', assetId}});
+export const createGroupLayer = (name = 'Group'): LayerNode => ({...base(name, 'group', 1, 1), content: {kind: 'group', group: true}});
+export const createAdjustmentLayer = (content: AdjustmentContent, name = 'Adjustment'): LayerNode => ({...base(name, 'adjustment', 1, 1), content});
+export const createTextLayer = (text = 'Text', name = 'Text Layer', width = 1, height = 1): LayerNode => ({...base(name, 'text', width, height), content: {kind: 'text', text, fontFamily: 'sans-serif', fontSize: 48, color: {r: 0, g: 0, b: 0, a: 1}, align: 'left', lineHeight: 1.2, letterSpacing: 0}});
+export const createShapeLayer = (shape: Extract<LayerNode['content'], {kind: 'shape'}>['shape'] = 'rectangle', name = 'Shape Layer', width = 1, height = 1): LayerNode => ({...base(name, 'shape', width, height), content: {kind: 'shape', shape, fill: {r: 0, g: 0, b: 0, a: 1}, strokeWidth: 0}});
+export const createEmptyDocument = ({documentId = id('document'), projectId = id('project'), name = 'Untitled Document', width = 1920, height = 1080, resolution = 72}: Partial<Pick<DocumentState, 'documentId' | 'projectId' | 'name' | 'width' | 'height' | 'resolution'>> = {}): DocumentState => ({schemaVersion: DOCUMENT_SCHEMA_VERSION, documentId, projectId, name, colorSpace: 'sRGB', width, height, resolution, rootLayerIds: [], layers: {}, assets: {}, selections: {}, guides: [], metadata: {createdAt: new Date().toISOString()}});

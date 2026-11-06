@@ -1,0 +1,6 @@
+import type {DocumentState} from './types';
+import {validateDocument} from './validate';
+const utf8Compare = (a: string, b: string): number => { const left = new TextEncoder().encode(a); const right = new TextEncoder().encode(b); const length = Math.min(left.length, right.length); for (let index = 0; index < length; index++) if (left[index] !== right[index]) return left[index] - right[index]; return left.length - right.length; };
+const sortKeys = (value: unknown): unknown => { if (Array.isArray(value)) return value.map(sortKeys); if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value as Record<string, unknown>).filter(([, v]) => v !== undefined).sort(([a], [b]) => utf8Compare(a, b)).map(([k, v]) => [k, sortKeys(v)])); return Object.is(value, -0) ? 0 : value; };
+export const normalizeDocument = (document: DocumentState): DocumentState => { const errors = validateDocument(document).filter((x) => x.severity === 'error'); if (errors.length) throw new Error(`Cannot normalize invalid document: ${errors[0].code}`); return sortKeys(structuredClone(document)) as DocumentState; };
+export const canonicalDocumentJson = (document: DocumentState): string => JSON.stringify(normalizeDocument(document));

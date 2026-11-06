@@ -1,0 +1,19 @@
+{
+	"editor": {
+		"playback": {
+			"play": "Play",
+			"pause": "Pause",
+			"currentTime": "Current time",
+			"projectDuration": "Project duration",
+			"zoom": "Zoom",
+			"zoomIn": "Zoom in timeline",
+			"zoomOut": "Zoom out timeline",
+			"mute": "Mute",
+			"unmute": "Unmute",
+			"loop": "Loop playback",
+			"goToStart": "Go to start",
+			"goToEnd": "Go to end",
+			"fullscreen": "Fullscreen"
+		}
+	}
+}

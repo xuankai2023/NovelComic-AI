@@ -1,0 +1,1274 @@
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>After Effects Keyframe Layout</title>
+		<style>
+			:root {
+				--black: #111113;
+				--deep: #171719;
+				--panel: #202022;
+				--row: #28282a;
+				--row-alt: #242426;
+				--hover: #343438;
+				--border: #3c3c3f;
+				--text: #d5d5d8;
+				--dim: #96969b;
+				--blue: #3aa9ff;
+				--green: #67c56f;
+				--purple: #a986ff;
+				--yellow: #f4d35e;
+				--cyan: #54c9d9;
+				--project-width: 284px;
+				--timeline-list: 432px;
+				--layer-row: 25px;
+				--property-row: 22px;
+			}
+
+			* { box-sizing: border-box; }
+
+			html,
+			body {
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				overflow: hidden;
+				background: var(--black);
+				color: var(--text);
+				font-family: "Segoe UI", Inter, ui-sans-serif, system-ui, sans-serif;
+				font-size: 11px;
+			}
+
+			button,
+			input,
+			select { font: inherit; }
+			button { border: 0; color: inherit; }
+
+			.ae-app {
+				display: grid;
+				grid-template-rows: 29px 31px minmax(315px, 1fr) 400px;
+				width: 100vw;
+				height: 100vh;
+				min-width: 1180px;
+				min-height: 820px;
+				background: var(--black);
+			}
+
+			.app-bar,
+			.workspace-bar {
+				display: flex;
+				align-items: center;
+				border-bottom: 1px solid #09090a;
+				background: #18181a;
+			}
+
+			.app-bar { gap: 0; padding: 0 9px; color: #c5c5c8; }
+
+			.app-menu { display: flex; align-items: center; height: 100%; }
+
+			.app-menu button,
+			.workspace-tab,
+			.panel-tab {
+				height: 100%;
+				padding: 0 10px;
+				background: transparent;
+				color: var(--text);
+				cursor: pointer;
+			}
+
+			.app-menu button:hover,
+			.workspace-tab:hover,
+			.panel-tab:hover { background: var(--hover); }
+
+			.app-title { margin-left: 12px; color: var(--dim); font-size: 10px; }
+			.app-spacer,
+			.workspace-spacer { flex: 1; }
+
+			.app-icon {
+				width: 27px;
+				height: 23px;
+				margin-left: 3px;
+				border: 1px solid transparent;
+				background: transparent;
+				color: var(--dim);
+				cursor: pointer;
+			}
+
+			.app-icon:hover {
+				border-color: var(--border);
+				background: var(--hover);
+				color: var(--text);
+			}
+
+			.workspace-bar { gap: 0; padding-left: 7px; background: #222224; }
+
+			.workspace-tab {
+				height: 25px;
+				margin-top: 5px;
+				padding: 0 13px;
+				border: 1px solid transparent;
+				border-bottom: 0;
+				color: var(--dim);
+			}
+
+			.workspace-tab.active {
+				border-color: var(--border);
+				background: var(--panel);
+				color: var(--text);
+			}
+
+			.workspace-action {
+				width: 29px;
+				height: 24px;
+				margin-right: 3px;
+				background: transparent;
+				color: var(--dim);
+				cursor: pointer;
+			}
+
+			.workspace-action:hover { background: var(--hover); color: var(--text); }
+
+			.upper-workspace {
+				display: grid;
+				grid-template-columns: var(--project-width) minmax(420px, 1fr) 275px;
+				min-height: 0;
+				border-bottom: 1px solid #0b0b0c;
+				background: #171719;
+			}
+
+			.upper-workspace[hidden] { display: none; }
+
+			.workspace-stage {
+				position: relative;
+				min-height: 0;
+				overflow: hidden;
+				border-bottom: 1px solid #0b0b0c;
+				background: #171719;
+			}
+
+			.workspace-stage > .upper-workspace,
+			.workspace-stage > .ps-workspace {
+				position: absolute;
+				inset: 0;
+				width: 100%;
+				height: 100%;
+				border-bottom: 0;
+			}
+
+			.project-column,
+			.effect-column,
+			.composition-column {
+				position: relative;
+				min-width: 0;
+				min-height: 0;
+				border-right: 1px solid #09090a;
+				background: var(--panel);
+			}
+
+			.effect-column { border-right: 0; }
+
+			.panel-titlebar {
+				display: flex;
+				align-items: center;
+				height: 26px;
+				padding: 0 8px;
+				border-bottom: 1px solid var(--border);
+				background: #29292b;
+				font-weight: 600;
+			}
+
+			.panel-menu {
+				width: 24px;
+				height: 20px;
+				margin-left: auto;
+				background: transparent;
+				color: var(--dim);
+				cursor: pointer;
+			}
+
+			.panel-menu:hover { background: var(--hover); color: var(--text); }
+
+			.panel-tabs {
+				display: flex;
+				align-items: end;
+				height: 29px;
+				border-bottom: 1px solid var(--border);
+				background: #242426;
+			}
+
+			.panel-tab {
+				height: 28px;
+				padding: 0 10px;
+				color: var(--dim);
+			}
+
+			.panel-tab.active {
+				border-bottom: 2px solid var(--blue);
+				color: var(--text);
+			}
+
+			.search-row {
+				display: flex;
+				gap: 5px;
+				padding: 7px;
+				border-bottom: 1px solid var(--border);
+			}
+
+			.search-row input,
+			.timeline-search {
+				border: 1px solid #4a4a4d;
+				outline: 0;
+				background: #151517;
+				color: var(--text);
+			}
+
+			.search-row input {
+				width: 100%;
+				height: 24px;
+				padding: 0 7px;
+			}
+
+			.search-row input:focus,
+			.timeline-search:focus-within { border-color: var(--blue); }
+
+			.project-list {
+				height: calc(100% - 278px);
+				min-height: 80px;
+				overflow: auto;
+				padding: 7px;
+				scrollbar-color: #5a5a5e #202022;
+				scrollbar-width: thin;
+			}
+
+			.project-attributes {
+				position: absolute;
+				right: 0;
+				bottom: 0;
+				left: 0;
+				height: 196px;
+				border-top: 1px solid #09090a;
+				background: #222224;
+			}
+
+			.project-attributes .panel-titlebar {
+				height: 26px;
+			}
+
+			.project-attributes .effect-selected {
+				padding: 7px 9px 5px;
+			}
+
+			.project-attributes .effect-section-title {
+				height: 24px;
+			}
+
+			.project-attributes .effect-property {
+				min-height: 23px;
+				padding-left: 23px;
+			}
+
+			.project-folder {
+				display: flex;
+				align-items: center;
+				height: 23px;
+				color: var(--text);
+			}
+
+			.project-folder .caret { width: 20px; color: var(--dim); }
+
+			.asset-row {
+				display: grid;
+				grid-template-columns: 30px minmax(0, 1fr) auto;
+				align-items: center;
+				gap: 7px;
+				height: 37px;
+				padding: 3px 6px 3px 20px;
+				cursor: pointer;
+			}
+
+			.asset-row:hover,
+			.asset-row.selected { background: #3a3a3d; }
+
+			.asset-icon {
+				display: grid;
+				place-items: center;
+				width: 28px;
+				height: 26px;
+				border: 1px solid #66717c;
+				background: #37434c;
+				color: #d4efff;
+				font-size: 14px;
+			}
+
+			.asset-icon.image { border-color: #766652; background: #5a4d3b; color: #f2d5a0; }
+			.asset-icon.audio { border-color: #766b45; background: #514b32; color: var(--yellow); }
+			.asset-meta { min-width: 0; }
+			.asset-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+			.asset-detail,
+			.asset-type { color: var(--dim); font-size: 10px; }
+			.asset-detail { margin-top: 2px; }
+
+			.composition-column {
+				position: relative;
+				border-right-color: #09090a;
+				background: #2b2b2e;
+			}
+
+			.comp-titlebar {
+				display: flex;
+				align-items: center;
+				height: 26px;
+				padding: 0 9px;
+				border-bottom: 1px solid #111113;
+				background: #29292b;
+			}
+
+			.comp-name { font-weight: 600; }
+			.comp-menu { margin-left: 8px; color: var(--dim); }
+			.comp-controls { display: flex; align-items: center; gap: 5px; margin-left: auto; }
+
+			.comp-controls button,
+			.comp-controls select {
+				height: 21px;
+				border: 1px solid transparent;
+				background: transparent;
+				color: var(--dim);
+				cursor: pointer;
+			}
+
+			.comp-controls button:hover,
+			.comp-controls select:hover {
+				border-color: var(--border);
+				background: var(--hover);
+				color: var(--text);
+			}
+
+			.comp-viewer {
+				position: absolute;
+				inset: 26px 0 0;
+				display: grid;
+				place-items: center;
+				overflow: hidden;
+				background: #79797b;
+			}
+
+			.comp-frame {
+				position: relative;
+				width: min(31vw, 340px);
+				aspect-ratio: 9 / 16;
+				overflow: hidden;
+				background: #3d3d42;
+				box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+			}
+
+			.comp-frame .sky,
+			.comp-frame .ground,
+			.comp-frame .sun,
+			.comp-frame .hero { position: absolute; }
+			.comp-frame .sky { inset: 0 0 47%; background: #59697c; }
+			.comp-frame .ground { inset: 53% 0 0; background: #3c373c; }
+			.comp-frame .sun { top: 12%; right: 14%; width: 34px; height: 34px; border-radius: 50%; background: #f4d35e; }
+			.comp-frame .hero { left: 36%; top: 30%; width: 29%; height: 47%; border: 1px solid var(--blue); background: #c58d6c; box-shadow: 0 0 0 15px rgba(0, 0, 0, 0.17); }
+			.comp-frame .hero::before { position: absolute; top: -15%; left: -16%; width: 132%; height: 35%; border-radius: 50%; background: #222228; content: ""; }
+			.comp-frame .box { position: absolute; top: 27%; left: 30%; width: 40%; height: 56%; border: 1px solid var(--blue); }
+			.comp-frame .handle { position: absolute; width: 6px; height: 6px; border: 1px solid #fff; background: var(--blue); }
+			.comp-frame .handle.tl { top: -4px; left: -4px; }
+			.comp-frame .handle.tr { top: -4px; right: -4px; }
+			.comp-frame .handle.bl { bottom: -4px; left: -4px; }
+			.comp-frame .handle.br { right: -4px; bottom: -4px; }
+			.comp-status { position: absolute; right: 10px; bottom: 8px; color: rgba(255, 255, 255, 0.7); font-size: 10px; }
+
+			.effect-content {
+				height: calc(100% - 26px);
+				overflow: auto;
+				background: #222224;
+				scrollbar-color: #5a5a5e #202022;
+				scrollbar-width: thin;
+			}
+
+			.effect-selected { padding: 11px 10px 7px; border-bottom: 1px solid var(--border); }
+			.effect-selected small { display: block; margin-top: 4px; color: var(--dim); }
+			.effect-section { border-bottom: 1px solid var(--border); }
+			.effect-section-title { display: flex; align-items: center; height: 27px; padding: 0 9px; background: #29292b; }
+			.effect-section-title .caret { width: 19px; color: var(--dim); }
+			.effect-property { display: grid; grid-template-columns: 80px minmax(0, 1fr) 18px; align-items: center; min-height: 25px; padding: 0 8px 0 27px; border-top: 1px solid rgba(255, 255, 255, 0.035); color: var(--dim); }
+			.effect-value { color: var(--blue); font-variant-numeric: tabular-nums; }
+
+			.stopwatch {
+				position: relative;
+				width: 16px;
+				height: 16px;
+				background: transparent;
+				color: var(--dim);
+				cursor: pointer;
+			}
+
+			.stopwatch::before { position: absolute; top: 4px; left: 3px; width: 8px; height: 8px; border: 1.5px solid currentColor; border-radius: 50%; content: ""; }
+			.stopwatch::after { position: absolute; top: 1px; left: 6px; width: 3px; height: 4px; border-top: 1.5px solid currentColor; content: ""; }
+			.stopwatch.active { color: var(--blue); }
+			.stopwatch.active::before { background: var(--blue); box-shadow: inset 0 0 0 2px #222224; }
+
+			.timeline-panel {
+				display: grid;
+				grid-template-rows: 34px 31px minmax(0, 1fr) 23px;
+				min-height: 0;
+				background: var(--panel);
+			}
+
+			.timeline-header {
+				display: flex;
+				align-items: center;
+				border-bottom: 1px solid #111113;
+				background: #29292b;
+			}
+
+			.timeline-tab { display: flex; align-items: center; align-self: stretch; gap: 7px; padding: 0 10px; border-right: 1px solid var(--border); font-weight: 600; }
+			.timeline-tab .panel-menu { margin-left: 0; }
+			.timecode { width: 116px; margin-left: 10px; color: var(--blue); font: 600 15px "SFMono-Regular", Consolas, monospace; font-variant-numeric: tabular-nums; }
+			.fps { margin-left: 10px; color: var(--dim); font-size: 10px; }
+
+			.timeline-search {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				width: 190px;
+				height: 23px;
+				margin-left: 15px;
+				padding: 0 6px;
+			}
+
+			.timeline-search input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text); }
+			.timeline-header-tools { display: flex; align-items: center; gap: 2px; margin-left: auto; padding-right: 5px; }
+			.timeline-header-tools button { width: 25px; height: 23px; background: transparent; color: var(--dim); cursor: pointer; }
+			.timeline-header-tools button:hover { background: var(--hover); color: var(--text); }
+
+			.timeline-ruler,
+			.timeline-scroll { display: grid; grid-template-columns: var(--timeline-list) minmax(650px, 1fr); min-width: 0; }
+			.timeline-ruler { border-bottom: 1px solid var(--border); background: #1d1d1f; }
+
+			.timeline-list-head {
+				display: grid;
+				grid-template-columns: 126px 24px 24px 24px 24px 1fr 104px;
+				align-items: center;
+				min-width: var(--timeline-list);
+				padding: 0 6px;
+				border-right: 1px solid var(--border);
+				color: var(--dim);
+				font-size: 10px;
+			}
+
+			.timeline-list-head .source { padding-left: 6px; color: var(--text); }
+			.timeline-list-head .parent { padding-left: 7px; }
+			.ruler { position: relative; min-width: 650px; overflow: hidden; }
+			.ruler-tick { position: absolute; top: 0; bottom: 0; width: 1px; background: #454548; }
+			.ruler-tick.minor { top: 12px; background: #333336; }
+			.ruler-label { position: absolute; top: 5px; color: var(--dim); font: 10px "SFMono-Regular", Consolas, monospace; }
+
+			.timeline-scroll { min-height: 0; overflow: hidden; }
+			.layer-list,
+			.keyframe-scroll {
+				min-height: 0;
+				overflow: auto;
+				scrollbar-color: #5a5a5e #202022;
+				scrollbar-width: thin;
+			}
+
+			.layer-list { border-right: 1px solid var(--border); background: #202022; }
+			.layer-row,
+			.property-row { display: grid; align-items: center; min-width: var(--timeline-list); border-bottom: 1px solid #353538; }
+			.layer-row { grid-template-columns: 126px 24px 24px 24px 24px 1fr 104px; height: var(--layer-row); padding: 0 6px; background: var(--row); cursor: pointer; }
+			.layer-row:hover,
+			.layer-row.selected { background: #3a3a3d; }
+			.property-row { grid-template-columns: 24px 1fr 104px; height: var(--property-row); padding: 0 6px 0 30px; background: var(--row-alt); color: var(--dim); cursor: pointer; }
+			.property-row:hover,
+			.property-row.selected { background: #343438; color: var(--text); }
+			.layer-switches { display: grid; grid-template-columns: 24px 24px 24px 24px 24px; align-items: center; color: var(--dim); }
+			.layer-switches button { width: 18px; height: 18px; padding: 0; background: transparent; color: var(--dim); cursor: pointer; font-size: 11px; }
+			.layer-switches button:hover,
+			.layer-switches button.active { color: var(--text); }
+			.layer-label { display: flex; align-items: center; min-width: 0; }
+			.layer-label .caret,
+			.property-row .branch { width: 17px; flex: 0 0 17px; color: var(--dim); }
+			.layer-label .layer-color { width: 9px; height: 9px; margin-right: 6px; background: #73bac9; }
+			.layer-label .layer-number { width: 22px; color: var(--dim); }
+			.source-name,
+			.property-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+			.parent-link { height: 19px; padding: 0 5px; border: 1px solid transparent; background: transparent; color: var(--text); text-align: left; cursor: pointer; }
+			.parent-link:hover { border-color: var(--border); background: #151517; }
+			.property-row .stopwatch { justify-self: end; }
+
+			.keyframe-scroll { position: relative; background: #242426; }
+			.keyframe-content { position: relative; min-width: 820px; min-height: 100%; }
+			.timeline-grid-line { position: absolute; z-index: 0; top: 0; bottom: 0; width: 1px; background: #343437; pointer-events: none; }
+			.timeline-grid-line.minor { top: 11px; background: #2d2d30; }
+			.track-row,
+			.property-track { position: relative; z-index: 1; border-bottom: 1px solid #353538; }
+			.track-row { height: var(--layer-row); background: #29292b; }
+			.property-track { height: var(--property-row); }
+			.property-track.selected { background: rgba(58, 169, 255, 0.07); }
+			.layer-bar { position: absolute; top: 4px; height: 17px; border-top: 2px solid #6e9eae; border-bottom: 1px solid #47707d; background: #3f5c65; }
+			.layer-bar.background { border-top-color: #866e50; border-bottom-color: #675238; background: #554637; }
+			.keyframe { position: absolute; top: 50%; z-index: 3; width: 8px; height: 8px; border: 1px solid currentColor; background: currentColor; transform: translate(-50%, -50%) rotate(45deg); cursor: pointer; }
+			.keyframe.position { color: var(--green); }
+			.keyframe.scale { color: var(--purple); }
+			.keyframe.rotation { color: var(--yellow); }
+			.keyframe.opacity { color: var(--cyan); }
+			.keyframe.selected { outline: 2px solid rgba(255, 255, 255, 0.9); outline-offset: 1px; }
+
+			.current-time-indicator { position: absolute; z-index: 6; top: 0; bottom: 0; left: 43%; width: 1px; background: var(--blue); pointer-events: none; }
+			.current-time-indicator::before { position: absolute; top: 0; left: -5px; width: 0; height: 0; border-top: 8px solid var(--blue); border-right: 5px solid transparent; border-left: 5px solid transparent; content: ""; }
+			.work-area { position: absolute; z-index: 4; top: 0; left: 5%; width: 78%; height: 3px; border-right: 1px solid #7ac879; background: #69bd6d; pointer-events: none; }
+			.work-area::after { position: absolute; top: 0; right: -5px; width: 0; height: 0; border-top: 4px solid #69bd6d; border-right: 4px solid transparent; border-left: 4px solid transparent; content: ""; }
+
+			.timeline-footer { display: flex; align-items: center; border-top: 1px solid #111113; background: #29292b; color: var(--dim); }
+			.timeline-footer button { height: 22px; padding: 0 9px; border-right: 1px solid var(--border); background: transparent; color: var(--dim); cursor: pointer; }
+			.timeline-footer button:hover,
+			.timeline-footer button.active { background: var(--hover); color: var(--text); }
+			.render-time { margin-left: 10px; }
+			.render-time strong { color: var(--green); }
+			.footer-spacer { flex: 1; }
+			.zoom-control { display: flex; align-items: center; gap: 5px; padding-right: 8px; }
+			.zoom-control input { width: 90px; accent-color: var(--blue); }
+
+			.toast { position: fixed; right: 14px; bottom: 14px; z-index: 10; padding: 8px 10px; border: 1px solid #55555a; background: #161618; color: var(--text); opacity: 0; pointer-events: none; transform: translateY(4px); transition: opacity 120ms ease, transform 120ms ease; }
+			.toast.show { opacity: 1; transform: translateY(0); }
+
+			.ps-workspace {
+				display: grid;
+				grid-template-columns: 48px minmax(420px, 1fr) 286px;
+				min-height: 0;
+				border-bottom: 1px solid #0b0b0c;
+				background: #171719;
+			}
+
+			.ps-workspace[hidden] { display: none; }
+
+			.ps-tool-rail {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 4px;
+				padding: 8px 5px;
+				border-right: 1px solid #09090a;
+				background: #202022;
+			}
+
+			.ps-tool {
+				position: relative;
+				width: 36px;
+				height: 36px;
+				border: 1px solid transparent;
+				background: transparent;
+				color: var(--dim);
+				cursor: pointer;
+				font-size: 16px;
+			}
+
+			.ps-tool:hover,
+			.ps-tool.active {
+				border-color: #4a4a4d;
+				background: #343438;
+				color: var(--text);
+			}
+
+			.ps-tool.active::after {
+				position: absolute;
+				top: 4px;
+				right: 3px;
+				width: 4px;
+				height: 4px;
+				border-radius: 50%;
+				background: var(--blue);
+				content: "";
+			}
+
+			.ps-tool-divider {
+				width: 28px;
+				height: 1px;
+				margin: 4px 0;
+				background: var(--border);
+			}
+
+			.ps-editor {
+				display: grid;
+				grid-template-rows: 35px minmax(0, 1fr);
+				min-width: 0;
+				min-height: 0;
+				border-right: 1px solid #09090a;
+				background: #2b2b2e;
+			}
+
+			.ps-toolbar {
+				display: flex;
+				align-items: center;
+				gap: 7px;
+				min-width: 0;
+				padding: 0 9px;
+				border-bottom: 1px solid #111113;
+				background: #29292b;
+				color: var(--dim);
+			}
+
+			.ps-toolbar strong { color: var(--text); }
+			.ps-toolbar label { display: flex; align-items: center; gap: 5px; }
+			.ps-toolbar input[type="range"] { width: 72px; accent-color: var(--blue); }
+			.ps-toolbar-value { min-width: 28px; color: var(--blue); font-variant-numeric: tabular-nums; }
+
+			.ps-operation-group {
+				display: flex;
+				overflow: hidden;
+				border: 1px solid var(--border);
+			}
+
+			.ps-operation,
+			.ps-toolbar-action {
+				height: 23px;
+				padding: 0 8px;
+				border-right: 1px solid var(--border);
+				background: #1b1b1d;
+				color: var(--dim);
+				cursor: pointer;
+			}
+
+			.ps-operation:last-child { border-right: 0; }
+			.ps-operation:hover,
+			.ps-operation.active,
+			.ps-toolbar-action:hover { background: var(--hover); color: var(--text); }
+			.ps-toolbar-action.primary { border-color: #2778ac; background: #23628b; color: #fff; }
+			.ps-toolbar-action.primary:hover { background: #2e7daf; }
+
+			.ps-toolbar-spacer { flex: 1; }
+
+			.ps-canvas-area {
+				position: relative;
+				display: grid;
+				place-items: center;
+				min-height: 0;
+				overflow: hidden;
+				background: #79797b;
+			}
+
+			.ps-canvas-area.on-black { background: #111113; }
+			.ps-canvas-area.on-white { background: #e5e5e5; }
+			.ps-canvas-area.black-white { background: #555; }
+
+			.ps-document {
+				position: relative;
+				width: min(62vw, 720px);
+				max-width: calc(100% - 76px);
+				aspect-ratio: 16 / 9;
+				overflow: hidden;
+				background-color: #b8b8ba;
+				background-image: linear-gradient(45deg, #d4d4d6 25%, transparent 25%), linear-gradient(-45deg, #d4d4d6 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #d4d4d6 75%), linear-gradient(-45deg, transparent 75%, #d4d4d6 75%);
+				background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+				background-size: 16px 16px;
+				box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+			}
+
+			.ps-art,
+			.ps-art .sky,
+			.ps-art .ground,
+			.ps-art .sun,
+			.ps-art .hero,
+			.ps-art .hero-hair,
+			.ps-selection {
+				position: absolute;
+			}
+
+			.ps-art { inset: 0; }
+			.ps-art .sky { inset: 0 0 47%; background: #59697c; }
+			.ps-art .ground { inset: 53% 0 0; background: #3c373c; }
+			.ps-art .sun { top: 11%; right: 12%; width: 7%; aspect-ratio: 1; border-radius: 50%; background: #f4d35e; }
+			.ps-art .hero { top: 28%; left: 38%; width: 24%; height: 51%; border: 1px solid #9f7055; background: #c58d6c; }
+			.ps-art .hero-hair { top: 23%; left: 34%; width: 32%; height: 20%; border-radius: 48% 52% 35% 35%; background: #222228; }
+			.ps-selection {
+				top: 19%;
+				left: 31%;
+				width: 38%;
+				height: 31%;
+				border: 1px dashed #fff;
+				background: rgba(255, 38, 38, 0.28);
+				box-shadow: 0 0 0 1px rgba(255, 38, 38, 0.35);
+			}
+
+			.ps-selection::before {
+				position: absolute;
+				top: -18px;
+				left: 0;
+				padding: 2px 5px;
+				background: #151517;
+				color: #fff;
+				content: "Hair mask · 42%";
+				font-size: 10px;
+			}
+
+			.ps-selection.inverted {
+				background: rgba(64, 158, 255, 0.2);
+				border-color: var(--blue);
+			}
+
+			.ps-canvas-label {
+				position: absolute;
+				top: 9px;
+				left: 10px;
+				padding: 3px 6px;
+				background: rgba(0, 0, 0, 0.62);
+				color: rgba(255, 255, 255, 0.78);
+				font-size: 10px;
+			}
+
+			.ps-canvas-status {
+				position: absolute;
+				right: 10px;
+				bottom: 9px;
+				color: rgba(255, 255, 255, 0.72);
+				font-size: 10px;
+			}
+
+			.ps-canvas-controls {
+				position: absolute;
+				bottom: 9px;
+				left: 10px;
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				padding: 4px 6px;
+				background: rgba(23, 23, 25, 0.9);
+				color: var(--dim);
+				font-size: 10px;
+			}
+
+			.ps-canvas-controls button {
+				width: 22px;
+				height: 20px;
+				background: transparent;
+				color: var(--dim);
+				cursor: pointer;
+			}
+
+			.ps-canvas-controls button:hover { background: var(--hover); color: var(--text); }
+			.ps-coordinate { min-width: 96px; color: var(--text); font-variant-numeric: tabular-nums; }
+
+			.ps-properties {
+				min-width: 0;
+				overflow: auto;
+				background: #222224;
+				scrollbar-color: #5a5a5e #202022;
+				scrollbar-width: thin;
+			}
+
+			.ps-properties .panel-titlebar { position: sticky; top: 0; z-index: 1; }
+			.ps-layer-stack { border-bottom: 1px solid var(--border); }
+			.ps-layer-stack-title { display: flex; align-items: center; justify-content: space-between; height: 27px; padding: 0 9px; background: #29292b; color: var(--text); font-weight: 600; }
+			.ps-layer-stack-title small { color: var(--dim); font-weight: 400; }
+			.ps-layer-row { display: grid; grid-template-columns: 20px 20px minmax(0, 1fr) auto; align-items: center; gap: 4px; min-height: 30px; padding: 0 8px; border-top: 1px solid rgba(255, 255, 255, 0.035); color: var(--dim); cursor: pointer; }
+			.ps-layer-row:hover,
+			.ps-layer-row.selected { background: #343438; color: var(--text); }
+			.ps-layer-row button { width: 18px; height: 18px; padding: 0; background: transparent; color: var(--dim); cursor: pointer; }
+			.ps-layer-row button.active { color: var(--text); }
+			.ps-layer-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+			.ps-layer-role { padding: 2px 4px; border: 1px solid #4b5961; color: #acd8e4; font-size: 9px; }
+			.ps-layer-role.clean { border-color: #806d42; color: #e8c878; }
+			.ps-layer-role.cutout { border-color: #566b9a; color: #b9c9ff; }
+			.ps-selected { padding: 10px; border-bottom: 1px solid var(--border); }
+			.ps-selected strong { display: block; color: var(--text); }
+			.ps-selected small { display: block; margin-top: 4px; color: var(--dim); }
+			.ps-section { border-bottom: 1px solid var(--border); }
+			.ps-section-title { display: flex; align-items: center; height: 28px; padding: 0 9px; background: #29292b; color: var(--text); }
+			.ps-section-title .caret { width: 19px; color: var(--dim); }
+			.ps-field { display: grid; grid-template-columns: 78px minmax(0, 1fr) 44px; align-items: center; gap: 6px; min-height: 29px; padding: 0 9px; border-top: 1px solid rgba(255, 255, 255, 0.035); color: var(--dim); }
+			.ps-field input[type="range"] { width: 100%; accent-color: var(--blue); }
+			.ps-field output { color: var(--blue); text-align: right; font-variant-numeric: tabular-nums; }
+			.ps-field select { min-width: 0; width: 100%; height: 23px; border: 1px solid #4a4a4d; background: #151517; color: var(--text); }
+			.ps-check { display: flex; align-items: center; gap: 7px; min-height: 28px; padding: 0 9px; color: var(--dim); }
+			.ps-check input { accent-color: var(--blue); }
+			.ps-output { padding: 9px; }
+			.ps-output select { width: 100%; height: 25px; border: 1px solid #4a4a4d; background: #151517; color: var(--text); }
+			.ps-hint { padding: 8px 9px 10px; color: var(--dim); line-height: 1.5; }
+		</style>
+	</head>
+	<body>
+		<div class="ae-app">
+			<header class="app-bar">
+				<div class="app-menu">
+					<button type="button">文件</button><button type="button">编辑</button><button type="button">合成</button><button type="button">图层</button><button type="button">效果</button><button type="button">动画</button><button type="button">视图</button><button type="button">窗口</button><button type="button">帮助</button>
+				</div>
+				<div class="app-title">NovelComic-AI / Main Composition</div>
+				<div class="app-spacer"></div>
+				<button class="app-icon" type="button" title="工作区切换">▦</button><button class="app-icon" type="button" title="帮助">?</button><button class="app-icon" type="button" title="更多">⋯</button>
+			</header>
+
+			<nav class="workspace-bar" aria-label="工作区">
+				<button class="workspace-tab active" type="button" data-workspace="ae">标准</button><button class="workspace-tab" type="button" data-workspace="ae">动画</button><button class="workspace-tab" type="button" data-workspace="ps">PS 图层</button><button class="workspace-tab" type="button" data-workspace="ae">效果</button><button class="workspace-tab" type="button" data-workspace="ae">颜色</button><button class="workspace-tab" type="button" data-workspace="ae">音频</button>
+				<div class="workspace-spacer"></div><button class="workspace-action" type="button" title="新建工作区">＋</button><button class="workspace-action" type="button" title="工作区菜单">☰</button>
+			</nav>
+
+			<div class="workspace-stage" id="workspace-stage">
+			<section class="upper-workspace" id="ae-workspace">
+				<aside class="project-column" aria-label="项目和上传素材">
+					<div class="panel-titlebar"><span>项目</span><button class="panel-menu" type="button" title="项目面板菜单">☰</button></div>
+					<div class="panel-tabs"><button class="panel-tab active" type="button">项目</button><button class="panel-tab" type="button">效果</button></div>
+					<div class="search-row"><input type="search" placeholder="搜索项目..." aria-label="搜索项目" /><button class="app-icon" type="button" title="项目面板菜单">☰</button></div>
+					<div class="project-list">
+						<div class="project-folder"><span class="caret">▾</span><strong>上传素材</strong></div>
+						<div class="asset-row selected" data-asset="Character.png"><div class="asset-icon image">▧</div><div class="asset-meta"><div class="asset-name">Character.png</div><div class="asset-detail">1920 × 1080 · PNG</div></div><div class="asset-type">图像</div></div>
+						<div class="asset-row" data-asset="Background.jpg"><div class="asset-icon image">▧</div><div class="asset-meta"><div class="asset-name">Background.jpg</div><div class="asset-detail">1920 × 1080 · JPG</div></div><div class="asset-type">图像</div></div>
+						<div class="asset-row" data-asset="Voice_01.wav"><div class="asset-icon audio">⌁</div><div class="asset-meta"><div class="asset-name">Voice_01.wav</div><div class="asset-detail">00:00:05:00 · 48 kHz</div></div><div class="asset-type">音频</div></div>
+						<div class="asset-row" data-asset="Camera_Move.mp4"><div class="asset-icon">▶</div><div class="asset-meta"><div class="asset-name">Camera_Move.mp4</div><div class="asset-detail">1920 × 1080 · 00:00:05:00</div></div><div class="asset-type">视频</div></div>
+					</div>
+					<div class="project-attributes" aria-label="上传素材下方的关键帧属性">
+						<div class="panel-titlebar"><span>效果控件</span><button class="panel-menu" type="button" title="效果控件面板菜单">☰</button></div>
+						<div class="effect-selected"><strong id="project-layer-name">Character.png</strong><small>Transform · 当前帧 0:00:01:12</small></div>
+						<div class="effect-section">
+							<div class="effect-section-title"><span class="caret">▾</span><strong>Transform</strong></div>
+							<div class="effect-property"><span>位置</span><span class="effect-value">960.0, 540.0</span><button class="stopwatch active" type="button" title="位置关键帧"></button></div>
+							<div class="effect-property"><span>缩放</span><span class="effect-value">100.0, 100.0%</span><button class="stopwatch active" type="button" title="缩放关键帧"></button></div>
+							<div class="effect-property"><span>旋转</span><span class="effect-value">0x +0.0°</span><button class="stopwatch" type="button" title="旋转关键帧"></button></div>
+							<div class="effect-property"><span>不透明度</span><span class="effect-value">100%</span><button class="stopwatch active" type="button" title="不透明度关键帧"></button></div>
+						</div>
+					</div>
+				</aside>
+
+				<main class="composition-column" aria-label="合成预览">
+					<div class="comp-titlebar"><span class="comp-name">主合成</span><span class="comp-menu">☰</span><div class="comp-controls"><select aria-label="分辨率"><option>完整</option><option>一半</option></select><button type="button" title="网格和参考线">▦</button><button type="button" title="区域裁剪">⌗</button><button type="button" title="适合窗口">适合</button><button type="button" title="相机工具">▣</button><button type="button" id="open-ps-editor" title="打开 PS 图层编辑">PS</button></div></div>
+					<div class="comp-viewer"><div class="comp-frame"><div class="sky"></div><div class="ground"></div><div class="sun"></div><div class="hero"></div><div class="box"><div class="handle tl"></div><div class="handle tr"></div><div class="handle bl"></div><div class="handle br"></div></div></div><div class="comp-status">暂停 · 62% · 草稿</div></div>
+				</main>
+
+				<aside class="effect-column" aria-label="效果控件">
+					<div class="panel-titlebar"><span>效果控件</span><button class="panel-menu" type="button" title="效果控件面板菜单">☰</button></div>
+					<div class="effect-content">
+						<div class="effect-selected"><strong id="effect-layer-name">Character.png</strong><small>图层 1 · 当前帧 0:00:01:12</small></div>
+						<div class="effect-section">
+							<div class="effect-section-title"><span class="caret">▾</span><strong>Transform</strong></div>
+							<div class="effect-property"><span>锚点</span><span class="effect-value">960.0, 540.0</span><button class="stopwatch active" type="button" title="锚点关键帧"></button></div>
+							<div class="effect-property"><span>位置</span><span class="effect-value">960.0, 540.0</span><button class="stopwatch active" type="button" title="位置关键帧"></button></div>
+							<div class="effect-property"><span>缩放</span><span class="effect-value">100.0, 100.0%</span><button class="stopwatch active" type="button" title="缩放关键帧"></button></div>
+							<div class="effect-property"><span>旋转</span><span class="effect-value">0x +0.0°</span><button class="stopwatch" type="button" title="旋转关键帧"></button></div>
+							<div class="effect-property"><span>不透明度</span><span class="effect-value">100%</span><button class="stopwatch active" type="button" title="不透明度关键帧"></button></div>
+						</div>
+					</div>
+				</aside>
+			</section>
+
+			<section class="ps-workspace" id="ps-workspace" hidden aria-label="Photoshop 图层编辑">
+				<aside class="ps-tool-rail" aria-label="PS 工具">
+					<button class="ps-tool active" type="button" data-ps-tool="quick-select" title="快速选择">✦</button>
+					<button class="ps-tool" type="button" data-ps-tool="object-select" title="对象选择">⌾</button>
+					<button class="ps-tool" type="button" data-ps-tool="refine-edge" title="调整边缘画笔">◌</button>
+					<button class="ps-tool" type="button" data-ps-tool="brush" title="画笔">◒</button>
+					<button class="ps-tool" type="button" data-ps-tool="lasso" title="套索">⌁</button>
+					<button class="ps-tool" type="button" data-ps-tool="polygon-lasso" title="多边形套索">⌗</button>
+					<div class="ps-tool-divider"></div>
+					<button class="ps-tool" type="button" data-ps-tool="hand" title="手形">✋</button>
+					<button class="ps-tool" type="button" data-ps-tool="zoom" title="缩放">⌕</button>
+				</aside>
+
+				<main class="ps-editor" aria-label="PS 画布">
+					<div class="ps-toolbar">
+						<strong>选择并遮住</strong>
+						<div class="ps-operation-group" role="group" aria-label="选区操作">
+							<button class="ps-operation" type="button" data-ps-operation="new">新建</button><button class="ps-operation active" type="button" data-ps-operation="add">添加</button><button class="ps-operation" type="button" data-ps-operation="subtract">减去</button>
+						</div>
+						<label>大小 <input id="ps-brush-size" type="range" min="1" max="300" value="48" /><span class="ps-toolbar-value" id="ps-brush-size-value">48</span></label>
+						<label>硬度 <input id="ps-brush-hardness" type="range" min="0" max="100" value="75" /><span class="ps-toolbar-value" id="ps-brush-hardness-value">75%</span></label>
+						<div class="ps-toolbar-spacer"></div>
+						<button class="ps-toolbar-action" type="button" id="ps-select-subject">选择主体</button>
+						<button class="ps-toolbar-action" type="button" id="ps-invert">反相</button>
+						<button class="ps-toolbar-action" type="button" id="ps-cancel">取消</button>
+						<button class="ps-toolbar-action primary" type="button" id="ps-apply">应用</button>
+					</div>
+					<div class="ps-canvas-area" id="ps-canvas-area">
+						<div class="ps-document" id="ps-document" title="点击画布查看原图坐标">
+							<div class="ps-art">
+								<div class="sky"></div><div class="ground"></div><div class="sun"></div><div class="hero"></div><div class="hero-hair"></div>
+							</div>
+							<div class="ps-selection" id="ps-selection"></div>
+							<div class="ps-canvas-label">Character.png · RGB/8 · 1920 × 1080</div>
+						</div>
+						<div class="ps-canvas-controls">
+							<button type="button" id="ps-zoom-out" title="缩小">−</button><span id="ps-zoom-value">62%</span><button type="button" id="ps-zoom-in" title="放大">＋</button><button type="button" id="ps-fit" title="适合窗口">适合</button><span class="ps-coordinate" id="ps-coordinate">X: —  Y: —</span>
+						</div>
+						<div class="ps-canvas-status" id="ps-canvas-status">快速选择 · 叠加预览</div>
+					</div>
+				</main>
+
+				<aside class="ps-properties" aria-label="PS 属性">
+					<div class="panel-titlebar"><span>属性</span><button class="panel-menu" type="button" title="属性面板菜单">☰</button></div>
+					<div class="ps-layer-stack" aria-label="PS 图层角色">
+						<div class="ps-layer-stack-title"><span>图层</span><small>Source / Plate / Cutout</small></div>
+						<div class="ps-layer-row selected" data-ps-layer="L0 Source"><button type="button" class="active" title="显示/隐藏">◉</button><button type="button" title="锁定">▣</button><span class="ps-layer-name">L0 Source</span><span class="ps-layer-role">Source</span></div>
+						<div class="ps-layer-row" data-ps-layer="Clean Plate"><button type="button" title="显示/隐藏">◉</button><button type="button" title="锁定">▣</button><span class="ps-layer-name">Clean Plate</span><span class="ps-layer-role clean">待生成</span></div>
+						<div class="ps-layer-row" data-ps-layer="Hair Cutout"><button type="button" title="显示/隐藏">◉</button><button type="button" title="锁定">▣</button><span class="ps-layer-name">Hair Cutout</span><span class="ps-layer-role cutout">Cutout</span></div>
+					</div>
+					<div class="ps-selected"><strong id="ps-layer-name">Character.png</strong><small>图层 1 · 选择并遮住</small></div>
+					<section class="ps-section">
+						<div class="ps-section-title"><span class="caret">▾</span><strong>视图模式</strong></div>
+						<div class="ps-field"><span>显示</span><select id="ps-view-mode" aria-label="PS 预览模式"><option value="overlay">叠加</option><option value="marching-ants">虚线</option><option value="onion-skin">洋葱皮</option><option value="on-black">黑底</option><option value="on-white">白底</option><option value="black-white">黑白</option></select><output></output></div>
+						<div class="ps-field"><span>覆盖不透明度</span><input id="ps-overlay-opacity" type="range" min="0" max="100" value="50" /><output id="ps-overlay-opacity-value">50%</output></div>
+						<div class="ps-field"><span>边缘平滑</span><input id="ps-smooth" type="range" min="0" max="100" value="0" /><output id="ps-smooth-value">0</output></div>
+						<label class="ps-check"><input type="checkbox" id="ps-show-original" /> 显示原稿</label>
+						<label class="ps-check"><input type="checkbox" checked id="ps-high-quality" /> 高质量预览</label>
+					</section>
+					<section class="ps-section">
+						<div class="ps-section-title"><span class="caret">▾</span><strong>调整边缘</strong></div>
+						<div class="ps-field"><span>半径</span><input id="ps-radius" type="range" min="0" max="250" value="0" /><output id="ps-radius-value">0 px</output></div>
+						<div class="ps-field"><span>羽化</span><input id="ps-feather" type="range" min="0" max="100" value="0" /><output id="ps-feather-value">0 px</output></div>
+						<div class="ps-field"><span>对比度</span><input id="ps-contrast" type="range" min="0" max="100" value="0" /><output id="ps-contrast-value">0%</output></div>
+						<div class="ps-field"><span>移动边缘</span><input id="ps-shift-edge" type="range" min="-100" max="100" value="0" /><output id="ps-shift-edge-value">0%</output></div>
+						<label class="ps-check"><input type="checkbox" id="ps-decontaminate" /> 去除颜色污染</label>
+					</section>
+					<section class="ps-section">
+						<div class="ps-section-title"><span class="caret">▾</span><strong>输出设置</strong></div>
+						<div class="ps-output"><select id="ps-output" aria-label="输出方式"><option value="new-layer-with-mask">新建图层并添加蒙版</option><option value="new-layer">新建图层</option><option value="layer-mask">图层蒙版</option></select></div>
+						<div class="ps-hint" id="ps-output-hint">原图 L0 保留；应用后生成 Cutout 和 mask，供 AE 时间线继续制作动画。</div>
+					</section>
+				</aside>
+			</section>
+			</div>
+
+			<section class="timeline-panel" aria-label="After Effects Timeline">
+				<div class="timeline-header">
+					<div class="timeline-tab"><span>主合成</span><span class="panel-menu">☰</span></div><div class="timecode" id="timecode">0:00:01:12</div><div class="fps">00042 (30.00 fps)</div>
+					<label class="timeline-search">⌕<input type="search" placeholder="搜索图层和属性" aria-label="搜索图层和属性" /></label>
+					<div class="timeline-header-tools"><button type="button" title="图层关系">⌁</button><button type="button" title="图层开关">◉</button><button type="button" title="图表编辑器">▱</button><button type="button" title="时间轴面板菜单">☰</button></div>
+				</div>
+
+				<div class="timeline-ruler">
+					<div class="timeline-list-head"><span title="显示/隐藏">◉</span><span title="音频">◖</span><span title="独奏">●</span><span title="锁定">▣</span><span title="标签">◆</span><span class="source">源名称</span><span class="parent" id="parent-column-heading">父级与链接</span></div>
+					<div class="ruler" id="ruler"><div class="ruler-label" style="left: 2%">0s</div><div class="ruler-label" style="left: 21%">1s</div><div class="ruler-label" style="left: 41%">2s</div><div class="ruler-label" style="left: 61%">3s</div><div class="ruler-label" style="left: 81%">4s</div><div class="ruler-label" style="left: 97%">5s</div></div>
+				</div>
+
+				<div class="timeline-scroll">
+					<div class="layer-list" id="layer-list">
+						<div class="layer-row selected" data-layer="Character.png">
+							<div class="layer-switches"><button class="active" type="button" title="显示/隐藏">◉</button><button class="active" type="button" title="音频开关">◖</button><button type="button" title="独奏">●</button><button type="button" title="锁定">▣</button><button type="button" title="图层标签">◆</button></div>
+							<div class="layer-label"><button class="caret" type="button" data-layer-toggle="character">▾</button><span class="layer-color"></span><span class="layer-number">1</span><span class="source-name">Character.png</span></div><button class="parent-link" type="button" title="父级与链接">螺旋 None</button>
+						</div>
+						<div class="property-row selected" data-property="anchor"><span class="branch">↳</span><span class="property-label">锚点</span><button class="stopwatch active" type="button" title="锚点关键帧"></button></div>
+						<div class="property-row selected" data-property="position"><span class="branch">↳</span><span class="property-label">位置</span><button class="stopwatch active" type="button" title="位置关键帧"></button></div>
+						<div class="property-row" data-property="scale"><span class="branch">↳</span><span class="property-label">缩放</span><button class="stopwatch active" type="button" title="缩放关键帧"></button></div>
+						<div class="property-row" data-property="rotation"><span class="branch">↳</span><span class="property-label">旋转</span><button class="stopwatch" type="button" title="旋转关键帧"></button></div>
+						<div class="property-row" data-property="opacity"><span class="branch">↳</span><span class="property-label">不透明度</span><button class="stopwatch active" type="button" title="不透明度关键帧"></button></div>
+						<div class="layer-row" data-layer="Background.jpg">
+							<div class="layer-switches"><button class="active" type="button" title="显示/隐藏">◉</button><button type="button" title="音频开关">◖</button><button type="button" title="独奏">●</button><button type="button" title="锁定">▣</button><button type="button" title="图层标签">◆</button></div>
+							<div class="layer-label"><button class="caret" type="button">▸</button><span class="layer-color" style="background: #ae8b5d"></span><span class="layer-number">2</span><span class="source-name">Background.jpg</span></div><button class="parent-link" type="button" title="父级与链接">螺旋 None</button>
+						</div>
+					</div>
+
+					<div class="keyframe-scroll" id="keyframe-scroll">
+						<div class="keyframe-content" id="keyframe-content">
+							<div class="work-area"></div><div class="current-time-indicator" id="current-time-indicator"></div>
+							<div class="track-row"><div class="layer-bar" style="left: 0%; width: 100%"></div></div>
+							<div class="property-track" data-property-track="anchor"><div class="keyframe position" style="left: 12%" title="锚点 0:00:00:18"></div><div class="keyframe position" style="left: 54%" title="锚点 0:00:02:12"></div></div>
+							<div class="property-track selected" data-property-track="position"><div class="keyframe position selected" style="left: 12%" title="位置 0:00:00:18"></div><div class="keyframe position" style="left: 54%" title="位置 0:00:02:12"></div><div class="keyframe position" style="left: 84%" title="位置 0:00:04:06"></div></div>
+							<div class="property-track" data-property-track="scale"><div class="keyframe scale" style="left: 12%" title="缩放 0:00:00:18"></div><div class="keyframe scale" style="left: 84%" title="缩放 0:00:04:06"></div></div>
+							<div class="property-track" data-property-track="rotation"><div class="keyframe rotation" style="left: 54%" title="旋转 0:00:02:12"></div></div>
+							<div class="property-track" data-property-track="opacity"><div class="keyframe opacity" style="left: 4%" title="不透明度 0:00:00:06"></div><div class="keyframe opacity" style="left: 84%" title="不透明度 0:00:04:06"></div></div>
+							<div class="track-row"><div class="layer-bar background" style="left: 0%; width: 100%"></div></div>
+						</div>
+					</div>
+				</div>
+
+				<footer class="timeline-footer"><button type="button" id="toggle-modes">切换开关 / 模式</button><button type="button" title="关键帧导航" data-toast="关键帧导航">◀◇▶</button><div class="render-time">帧渲染时间 <strong>0ms</strong></div><div class="footer-spacer"></div><div class="zoom-control"><span>时间轴缩放</span><input id="zoom-input" type="range" min="50" max="100" value="72" /><span id="zoom-value">72%</span></div></footer>
+			</section>
+		</div>
+
+		<div class="toast" id="toast" role="status"></div>
+		<script>
+			(() => {
+				const toast = document.getElementById("toast");
+				let timer;
+				const showToast = (message) => {
+					toast.textContent = message;
+					toast.classList.add("show");
+					clearTimeout(timer);
+					timer = setTimeout(() => toast.classList.remove("show"), 1400);
+				};
+
+				const aeWorkspace = document.getElementById("ae-workspace");
+				const psWorkspace = document.getElementById("ps-workspace");
+				const setWorkspace = (workspace, selectedTab) => {
+					const isPs = workspace === "ps";
+					aeWorkspace.hidden = isPs;
+					psWorkspace.hidden = !isPs;
+					document.querySelectorAll(".workspace-tab[data-workspace]").forEach((tab) => {
+						tab.classList.toggle("active", tab === selectedTab);
+					});
+					if (isPs) {
+						showToast("已打开 PS 图层编辑");
+					} else {
+						showToast("已返回 AE 合成");
+					}
+				};
+
+				document.querySelectorAll(".workspace-tab[data-workspace]").forEach((tab) => {
+					tab.addEventListener("click", () => setWorkspace(tab.dataset.workspace, tab));
+				});
+				document.getElementById("open-ps-editor").addEventListener("click", () => setWorkspace("ps", document.querySelector(".workspace-tab[data-workspace='ps']")));
+
+				const ruler = document.getElementById("ruler");
+				const timelineContent = document.getElementById("keyframe-content");
+				for (let index = 0; index <= 30; index += 1) {
+					const tick = document.createElement("span");
+					tick.className = `ruler-tick${index % 6 === 0 ? "" : " minor"}`;
+					tick.style.left = `${(index / 30) * 100}%`;
+					ruler.appendChild(tick);
+
+					const line = document.createElement("span");
+					line.className = `timeline-grid-line${index % 6 === 0 ? "" : " minor"}`;
+					line.style.left = `${(index / 30) * 100}%`;
+					timelineContent.prepend(line);
+				}
+
+				document.querySelectorAll("[data-toast]").forEach((button) => {
+					button.addEventListener("click", () => showToast(button.dataset.toast));
+				});
+
+				document.querySelectorAll(".asset-row").forEach((row) => {
+					row.addEventListener("click", () => {
+						document.querySelectorAll(".asset-row").forEach((item) => item.classList.remove("selected"));
+						row.classList.add("selected");
+						document.getElementById("effect-layer-name").textContent = row.dataset.asset;
+						document.getElementById("project-layer-name").textContent = row.dataset.asset;
+						document.getElementById("ps-layer-name").textContent = row.dataset.asset;
+						showToast(`已选中项目：${row.dataset.asset}`);
+					});
+				});
+
+				document.querySelectorAll("[data-property]").forEach((row) => {
+					row.addEventListener("click", (event) => {
+						if (event.target.closest("button")) return;
+						const property = row.dataset.property;
+						document.querySelectorAll("[data-property]").forEach((item) => item.classList.toggle("selected", item.dataset.property === property));
+						document.querySelectorAll("[data-property-track]").forEach((item) => item.classList.toggle("selected", item.dataset.propertyTrack === property));
+						showToast(`已选中属性：${row.querySelector(".property-label").textContent}`);
+					});
+				});
+
+				document.querySelectorAll(".keyframe").forEach((keyframe) => {
+					keyframe.addEventListener("click", (event) => {
+						event.stopPropagation();
+						document.querySelectorAll(".keyframe").forEach((item) => item.classList.remove("selected"));
+						keyframe.classList.add("selected");
+						showToast(keyframe.title);
+					});
+				});
+
+				document.querySelectorAll(".stopwatch").forEach((button) => {
+					button.addEventListener("click", (event) => {
+						event.stopPropagation();
+						button.classList.toggle("active");
+						showToast(button.classList.contains("active") ? "已开启时间变化" : "已关闭时间变化");
+					});
+				});
+
+				document.querySelectorAll("[data-layer-toggle]").forEach((button) => {
+					button.addEventListener("click", (event) => {
+						event.stopPropagation();
+						const collapse = button.textContent.trim() === "▾";
+						button.textContent = collapse ? "▸" : "▾";
+						document.querySelectorAll(".property-row").forEach((row) => { row.style.display = collapse ? "none" : ""; });
+						document.querySelectorAll("[data-property-track]").forEach((row) => { row.style.display = collapse ? "none" : ""; });
+						showToast(collapse ? "已折叠 Transform" : "已展开 Transform");
+					});
+				});
+
+				document.querySelectorAll(".layer-switches button, .parent-link").forEach((button) => {
+					button.addEventListener("click", (event) => {
+						event.stopPropagation();
+						button.classList.toggle("active");
+						showToast(button.title || "图层开关已切换");
+					});
+				});
+
+				const modeButton = document.getElementById("toggle-modes");
+				const parentHeading = document.getElementById("parent-column-heading");
+				const parentLinks = document.querySelectorAll(".parent-link");
+				modeButton.addEventListener("click", () => {
+					const showingParent = parentHeading.textContent === "父级与链接";
+					parentHeading.textContent = showingParent ? "模式" : "父级与链接";
+					parentLinks.forEach((link) => {
+						link.textContent = showingParent ? "正常" : "螺旋 None";
+						link.title = showingParent ? "混合模式" : "父级与链接";
+					});
+					showToast(showingParent ? "已切换到 Modes" : "已切换到 Parent & Link");
+				});
+
+				const zoomInput = document.getElementById("zoom-input");
+				const zoomValue = document.getElementById("zoom-value");
+				zoomInput.addEventListener("input", () => {
+					zoomValue.textContent = `${zoomInput.value}%`;
+					timelineContent.style.minWidth = `${Math.round(820 * (Number(zoomInput.value) / 72))}px`;
+				});
+
+				const keyframeScroll = document.getElementById("keyframe-scroll");
+				const timecode = document.getElementById("timecode");
+				const indicator = document.getElementById("current-time-indicator");
+				keyframeScroll.addEventListener("click", (event) => {
+					if (event.target.closest(".keyframe")) return;
+					const rect = keyframeScroll.getBoundingClientRect();
+					const x = Math.max(0, Math.min(rect.width + keyframeScroll.scrollLeft, event.clientX - rect.left + keyframeScroll.scrollLeft));
+					const ratio = x / Math.max(timelineContent.clientWidth, 1);
+					const frame = Math.round(ratio * 150);
+					const seconds = Math.floor(frame / 30);
+					const frames = frame % 30;
+					const nextTime = `0:00:${String(seconds).padStart(2, "0")}:${String(frames).padStart(2, "0")}`;
+					timecode.textContent = nextTime;
+					indicator.style.left = `${ratio * 100}%`;
+					showToast(`当前时间 ${nextTime}`);
+				});
+
+				const psCanvasArea = document.getElementById("ps-canvas-area");
+				const psDocument = document.getElementById("ps-document");
+				const psSelection = document.getElementById("ps-selection");
+				const psCanvasStatus = document.getElementById("ps-canvas-status");
+				const psCoordinate = document.getElementById("ps-coordinate");
+				const psViewMode = document.getElementById("ps-view-mode");
+				const psOutput = document.getElementById("ps-output");
+				const psOutputHint = document.getElementById("ps-output-hint");
+
+				const toolLabels = {
+					"quick-select": "快速选择",
+					"object-select": "对象选择",
+					"refine-edge": "调整边缘",
+					brush: "画笔",
+					lasso: "套索",
+					"polygon-lasso": "多边形套索",
+					hand: "手形",
+					zoom: "缩放"
+				};
+
+				document.querySelectorAll(".ps-layer-row").forEach((row) => {
+					row.addEventListener("click", (event) => {
+						if (event.target.closest("button")) return;
+						document.querySelectorAll(".ps-layer-row").forEach((item) => item.classList.remove("selected"));
+						row.classList.add("selected");
+						document.getElementById("ps-layer-name").textContent = row.dataset.psLayer;
+						showToast(`已选中 PS 图层：${row.dataset.psLayer}`);
+					});
+					row.querySelectorAll("button").forEach((button) => {
+						button.addEventListener("click", (event) => {
+							event.stopPropagation();
+							button.classList.toggle("active");
+							showToast(button.title === "锁定" ? (button.classList.contains("active") ? "图层已锁定" : "图层已解锁") : (button.classList.contains("active") ? "图层已显示" : "图层已隐藏"));
+						});
+					});
+				});
+
+				document.querySelectorAll("[data-ps-tool]").forEach((button) => {
+					button.addEventListener("click", () => {
+						document.querySelectorAll("[data-ps-tool]").forEach((item) => item.classList.remove("active"));
+						button.classList.add("active");
+						const label = toolLabels[button.dataset.psTool];
+						psCanvasStatus.textContent = `${label} · ${psViewMode.options[psViewMode.selectedIndex].text}`;
+						showToast(`PS 工具：${label}`);
+					});
+				});
+
+				document.querySelectorAll("[data-ps-operation]").forEach((button) => {
+					button.addEventListener("click", () => {
+						document.querySelectorAll("[data-ps-operation]").forEach((item) => item.classList.remove("active"));
+						button.classList.add("active");
+						showToast(`选区操作：${button.textContent}`);
+					});
+				});
+
+				const bindPsRange = (inputId, outputId, formatter) => {
+					const input = document.getElementById(inputId);
+					const output = document.getElementById(outputId);
+					input.addEventListener("input", () => {
+						output.textContent = formatter(Number(input.value));
+					});
+					return input;
+				};
+
+				bindPsRange("ps-brush-size", "ps-brush-size-value", (value) => value);
+				bindPsRange("ps-brush-hardness", "ps-brush-hardness-value", (value) => `${value}%`);
+				bindPsRange("ps-overlay-opacity", "ps-overlay-opacity-value", (value) => {
+					psSelection.style.background = `rgba(255, 38, 38, ${Math.max(0.05, value / 100 * 0.56)})`;
+					return `${value}%`;
+				});
+				bindPsRange("ps-smooth", "ps-smooth-value", (value) => value);
+				bindPsRange("ps-radius", "ps-radius-value", (value) => `${value} px`);
+				bindPsRange("ps-feather", "ps-feather-value", (value) => `${value} px`);
+				bindPsRange("ps-contrast", "ps-contrast-value", (value) => `${value}%`);
+				bindPsRange("ps-shift-edge", "ps-shift-edge-value", (value) => `${value}%`);
+
+				document.getElementById("ps-select-subject").addEventListener("click", () => {
+					psSelection.style.top = "15%";
+					psSelection.style.left = "27%";
+					psSelection.style.width = "46%";
+					psSelection.style.height = "39%";
+					psCanvasStatus.textContent = "选择主体 · 叠加预览";
+					showToast("已根据主体更新选区");
+				});
+
+				document.getElementById("ps-invert").addEventListener("click", () => {
+					psSelection.classList.toggle("inverted");
+					psCanvasStatus.textContent = psSelection.classList.contains("inverted") ? "反向选区 · 叠加预览" : "快速选择 · 叠加预览";
+					showToast(psSelection.classList.contains("inverted") ? "已反相选区" : "已恢复选区");
+				});
+
+				psViewMode.addEventListener("change", () => {
+					psCanvasArea.classList.remove("on-black", "on-white", "black-white");
+					if (psViewMode.value === "on-black") psCanvasArea.classList.add("on-black");
+					if (psViewMode.value === "on-white") psCanvasArea.classList.add("on-white");
+					if (psViewMode.value === "black-white") psCanvasArea.classList.add("black-white");
+					const activeTool = document.querySelector("[data-ps-tool].active");
+					psCanvasStatus.textContent = `${toolLabels[activeTool.dataset.psTool]} · ${psViewMode.options[psViewMode.selectedIndex].text}`;
+					showToast(`预览模式：${psViewMode.options[psViewMode.selectedIndex].text}`);
+				});
+
+				document.getElementById("ps-show-original").addEventListener("change", (event) => {
+					psSelection.style.opacity = event.target.checked ? "0.32" : "1";
+					showToast(event.target.checked ? "已显示原稿对比" : "已隐藏原稿对比");
+				});
+
+				psOutput.addEventListener("change", () => {
+					const hints = {
+						"new-layer-with-mask": "原图 L0 保留；应用后生成 Cutout 和 mask，供 AE 时间线继续制作动画。",
+						"new-layer": "生成透明 Cutout 图层；原图 L0 保留，适合直接进入 AE 动画。",
+						"layer-mask": "只写入图层蒙版；不生成独立 Cutout，原图仍作为当前图层内容。"
+					};
+					psOutputHint.textContent = hints[psOutput.value];
+					showToast(`输出：${psOutput.options[psOutput.selectedIndex].text}`);
+				});
+
+				let psZoom = 62;
+				const updatePsZoom = () => {
+					document.getElementById("ps-zoom-value").textContent = `${psZoom}%`;
+					psDocument.style.transform = `scale(${psZoom / 62})`;
+				};
+				document.getElementById("ps-zoom-out").addEventListener("click", () => {
+					psZoom = Math.max(25, psZoom - 10);
+					updatePsZoom();
+				});
+				document.getElementById("ps-zoom-in").addEventListener("click", () => {
+					psZoom = Math.min(150, psZoom + 10);
+					updatePsZoom();
+				});
+				document.getElementById("ps-fit").addEventListener("click", () => {
+					psZoom = 62;
+					updatePsZoom();
+					showToast("PS 画布已适合窗口");
+				});
+
+				psDocument.addEventListener("click", (event) => {
+					const rect = psDocument.getBoundingClientRect();
+					const x = Math.max(0, Math.min(1919, Math.round(((event.clientX - rect.left) / rect.width) * 1920)));
+					const y = Math.max(0, Math.min(1079, Math.round(((event.clientY - rect.top) / rect.height) * 1080)));
+					psCoordinate.textContent = `X: ${x}  Y: ${y}`;
+					showToast(`原图坐标 X:${x} Y:${y}`);
+				});
+
+				document.getElementById("ps-cancel").addEventListener("click", () => setWorkspace("ae", document.querySelector(".workspace-tab[data-workspace='ae']")));
+				document.getElementById("ps-apply").addEventListener("click", () => {
+					psCanvasStatus.textContent = "已应用 · Cutout + mask";
+					showToast(`已生成${psOutput.options[psOutput.selectedIndex].text}`);
+				});
+
+			})();
+		</script>
+	</body>
+</html>

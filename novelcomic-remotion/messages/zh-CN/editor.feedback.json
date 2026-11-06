@@ -1,0 +1,17 @@
+{
+	"editor": {
+		"feedback": {
+			"upload": {
+				"failed": "上传失败",
+				"retry": "重试",
+				"fileTooLarge": "文件过大，无法上传",
+				"fileTooLargeTitle": "文件过大",
+				"noCredentialsTitle": "上传凭证缺失",
+				"processingFailed": "素材处理失败"
+			},
+			"clipboard": {
+				"readDenied": "无法读取剪贴板"
+			}
+		}
+	}
+}

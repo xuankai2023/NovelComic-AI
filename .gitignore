@@ -1,0 +1,43 @@
+# Local secrets
+.env
+.env.local
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Build and test output
+dist/
+dist-ssr/
+build/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+coverage/
+.coverage
+
+# Local IDE / OS
+.DS_Store
+.vscode/
+.idea/
+*.log
+
+# Local data
+tmp/
+appendonlydir/
+dump.rdb
+
+# Cursor IDE (optional, can be removed if needed)
+.cursor/
+
+# Next.js
+.next/
+out/
+
+# Remotion
+.rn-preview/
+.video-cache/

@@ -1,0 +1,1 @@
+"""Comic object-storage boundaries."""

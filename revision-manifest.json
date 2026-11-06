@@ -1,0 +1,89 @@
+{
+  "frontend": {
+    "new": "1160a2cea9d75f0ef69df4269c9bad9324f5cd0e",
+    "old": "6665fdc93027003eff46819e4990cf3b52809446"
+  },
+  "publisher": {
+    "new": "1160a2cea9d75f0ef69df4269c9bad9324f5cd0e",
+    "old": "6665fdc93027003eff46819e4990cf3b52809446"
+  },
+  "consumer": {
+    "new": "1160a2cea9d75f0ef69df4269c9bad9324f5cd0e",
+    "old": "6665fdc93027003eff46819e4990cf3b52809446"
+  },
+  "ai": {
+    "new": "1160a2cea9d75f0ef69df4269c9bad9324f5cd0e",
+    "old": "6665fdc93027003eff46819e4990cf3b52809446"
+  },
+  "agent": {
+    "new": "1160a2cea9d75f0ef69df4269c9bad9324f5cd0e"
+  },
+  "tests": {
+    "frontend": {
+      "cwd": "novelcomic-frontend",
+      "commands": [
+        "pnpm install --frozen-lockfile",
+        "pnpm lint",
+        "pnpm typecheck",
+        "pnpm test",
+        "pnpm build"
+      ]
+    },
+    "publisher": {
+      "cwd": "novelcomic-publisher",
+      "commands": [
+        "uv sync --frozen --extra dev",
+        "uv run pytest"
+      ]
+    },
+    "consumer": {
+      "cwd": "novelcomic-consumer",
+      "commands": [
+        "uv sync --frozen --extra dev",
+        "uv run pytest"
+      ]
+    },
+    "ai": {
+      "cwd": "novelcomic-ai",
+      "commands": [
+        "pnpm install --frozen-lockfile",
+        "pnpm lint",
+        "pnpm typecheck",
+        "pnpm test"
+      ]
+    },
+    "agent": {
+      "cwd": ".",
+      "commands": [
+        "uv run --directory novelcomic-agent python scripts/accept-agent-sse-run-loop.py"
+      ]
+    },
+    "contracts": {
+      "ai": {
+        "name": "model-call-contracts.test.ts",
+        "cwd": "novelcomic-ai",
+        "role": "new",
+        "command": "pnpm exec vitest run packages/contracts/src/webhook.schema.test.ts packages/runtime/src/consumer-callback.test.ts"
+      },
+      "consumer": {
+        "name": "test_callback_parser.py",
+        "cwd": "novelcomic-consumer",
+        "role": "new",
+        "command": "uv run pytest tests/test_callback_hmac.py"
+      }
+    },
+    "external": [
+      {
+        "name": "test:kling-*",
+        "cwd": "novelcomic-ai",
+        "command": "pnpm test:kling-image"
+      },
+      {
+        "name": "run_real_opencreator_ai_e2e.py",
+        "cwd": "novelcomic-consumer",
+        "command": "python scripts/run_real_opencreator_ai_e2e.py"
+      }
+    ]
+  },
+  "owner": "novelcomic-platform"
+}

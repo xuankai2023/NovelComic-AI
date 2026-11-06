@@ -1,0 +1,73 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      force_drain_skip:
+        description: '跳过排水，仍把旧槽重启到新代码（in-flight 靠 checkpoint 接管）'
+        type: boolean
+        default: false
+
+concurrency:
+  group: prod-agent-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      EC2_USER: ec2-user
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      TG_ARN: ${{ secrets.AGENT_TG_ARN }}
+      INSTANCE_ID: ${{ secrets.AGENT_INSTANCE_ID }}
+      BLUE_PORT: "18791"
+      GREEN_PORT: "18792"
+      SSH_HOST: agent-host
+      DEPLOY_SCRIPT: /home/ec2-user/novelcomic-agent/scripts/deploy/deploy.sh
+      EXTERNAL_HEALTH_URL: ${{ secrets.AGENT_EXTERNAL_HEALTH_URL }}
+      # push 时没有这个输入，当作不跳过。
+      FORCE_DRAIN_SKIP: ${{ github.event_name == 'workflow_dispatch' && inputs.force_drain_skip }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate secrets
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          for v in EC2_HOST AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_REGION TG_ARN INSTANCE_ID; do
+            if [ -z "${!v:-}" ]; then
+              echo "::error::secret/env $v 未配置"
+              exit 1
+            fi
+          done
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -T 10 -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          cat > ~/.ssh/config <<EOF
+          Host agent-host
+            HostName $EC2_HOST
+            User $EC2_USER
+            IdentityFile ~/.ssh/id_ed25519
+            ServerAliveInterval 30
+            ServerAliveCountMax 60
+            ConnectTimeout 15
+          EOF
+
+      # 外部 /health 失败即 exit 1。排水超时仍继续，成功通知保留 timeout 备注。
+      # Owner: novelcomic-platform  Review by: 2026-12-31
+      - name: Blue/green release
+        run: bash scripts/deploy/deploy.sh release

@@ -1,0 +1,160 @@
+怎么拿到clerk文件呢？
+
+- 收费
+还差 SSO connections 里的 Google。Development 用 Clerk 自带的测试账号即可。
+
+-为什么使用redis来暂存验证码，不是使用别的，并发等角度回答
+
+- 什么是SDK？
+- 阿里云的邮箱推送
+1.需要域名
+- aws的邮箱发送
+- pyproject这个是干什么用的？
+- session成功
+- 登录页面的设计
+
+## 本次登录功能遇到的问题
+
+- 为什么登录成功后还停在“登录成功”页？
+  - 因为 `/sign-in` 和 `/oauth-popup-complete` 都默认跳 `/auth/success`。
+  - 正确做法是 OpenCreator 那种回跳：独立登录页成功后回 `/`，OAuth popup 根据 `returnUrl` 回原页面。
+- 为什么弹窗和 OpenCreator 不一样？
+  - 第一版只是功能弹窗，没有完全按 OpenCreator 的视觉和交互迁。
+  - 后面改成黑色半透明遮罩、浅灰弹窗卡片、圆角、右上关闭按钮。
+- 为什么 React 报 `getSnapshot should be cached`？
+  - `useSyncExternalStore` 的 `getSnapshot()` 每次返回新对象。
+  - React 认为 store 一直变，导致 `Maximum update depth exceeded`。
+  - 修法：缓存 snapshot，只在 `open/close` 更新状态时重新生成。
+- 为什么 `/sso-callback` 有路由 warning？
+  - 同时注册了 `/sso-callback` 和 `/sso-callback/$`。
+  - 现在 OAuth 只需要固定 `/sso-callback`，所以先从 route tree 去掉 splat 路由。
+- 为什么开发环境一直提示 Clerk development keys？
+  - 这是 Clerk 开发 key 的正常 warning。
+  - 本地开发可以忽略，生产必须换 production keys。
+- 为什么有 Session 不等于业务登录彻底完成？
+  - Clerk Session 只表示浏览器登录态。
+  - 业务接口还要能取到 `__opencreator_jwt`，Publisher 还要验签成功。
+  - 本地业务用户还要通过 `user.created` webhook 落库。
+- 为什么只做 Google 登录还不算完整迁移？
+  - OpenCreator 登录入口还包含邮箱验证码、注册、密码登录、改密、登录后恢复动作。
+  - 第一阶段只是先验证 Clerk Session、OAuth popup、JWT token provider 和全局弹窗。
+- 为什么全局弹窗必须放在 `ClerkProvider` 里面？
+  - 弹窗里的登录组件需要调用 Clerk hooks。
+  - 如果挂在 `ClerkProvider` 外面，`useAuth()`、`useClerk()` 等 hook 会拿不到上下文。
+- 为什么未登录时不能只靠前端弹窗保护？
+  - 前端弹窗只是体验层。
+  - 真正安全边界必须是 Publisher 中间件验 `Authorization: Bearer <__opencreator_jwt>`。
+- 为什么业务请求不能直接复用 Clerk Session ID？
+  - Session ID 只是 Clerk 浏览器会话标识。
+  - Publisher 业务接口需要的是 Clerk JWT Template 生成的 `__opencreator_jwt`。
+- 为什么 JWT Template 名字要固定成 `__opencreator_jwt`？
+  - 前端调用的是 `getToken({ template: "__opencreator_jwt" })`。
+  - Clerk Dashboard 里如果没有同名模板，前端就拿不到 Publisher 需要的 JWT。
+- 为什么登录成功后 `/api/v2/user/info` 仍可能报用户不存在？
+  - 登录成功只代表 Clerk Session 已激活。
+  - 本地业务用户依赖 Clerk `user.created` webhook 写入。
+  - Webhook 没到、验签失败或落库失败时，就会出现 JWT 正常但业务用户不存在。
+- 为什么 OAuth popup 要用 `flowId`？
+  - 主窗口可能同时存在状态、计时器和 returnUrl。
+  - `flowId` 用来确认当前收到的 popup complete 消息属于这一次登录流程，避免串流程。
+- 为什么 OAuth complete 需要 `BroadcastChannel` 和 `window.opener.postMessage` 两套通知？
+  - `window.opener.postMessage` 是直接通知打开它的主窗口。
+  - `BroadcastChannel` 是同源页面之间的补充通知机制。
+  - 两套一起用能提高 popup 登录完成后的回传稳定性。
+- 为什么 popup 被浏览器拦截？
+  - `window.open()` 必须由用户点击直接触发。
+  - 如果放到异步回调太深的位置，浏览器可能认为不是用户手势，从而拦截。
+- 为什么背景色也要对齐 OpenCreator？
+  - 登录弹窗不是孤立组件，遮罩、卡片和页面底色一起决定视觉是否像 OpenCreator。
+  - NovelComic 原来的深蓝渐变会让登录后页面和 OpenCreator 浅灰应用背景不一致。
+
+- NovelComic 可以不接阿里云，直接用 Google 登录吗？
+  - 可以。
+  - 阿里云主要影响邮箱验证码发信。
+  - Google 登录走 Clerk OAuth，不依赖阿里云邮箱推送。
+  - 但必须配置 Clerk 的 publishable key、API key、JWT template 和 Google SSO connection。
+- 为什么不能只点 Google 就零配置登录？
+  - 前端需要 `VITE_CLERK_PUBLISHABLE_KEY` 初始化 Clerk。
+  - 后端需要 `CLERK_API_KEY` 和 `CLERK_PEM_PUBLIC_KEY` 调 Clerk、验 JWT。
+  - Clerk Dashboard 里还要启用 Google Social/SSO connection。
+  - 业务用户落库还依赖 `CLERK_WEBHOOK_SECRET` 验 `user.created` webhook。
+- 为什么 OpenCreator 的配置不能随便混着用？
+  - Clerk 的 publishable key、API key、PEM public key、webhook secret 必须来自同一个 Clerk 应用。
+  - 如果前端 key 和后端 key 分属不同应用，前端拿到的 JWT 可能无法被后端公钥验过。
+  - 所以复用时要整套复用，不要只复制其中一个字段。
+- 为什么 Clerk 里 Google 只显示 `Used for sign-in` 还不够？
+  - 这通常只允许已有用户登录。
+  - 新用户第一次用 Google 进来，需要启用 `Enable for sign-up and sign-in`。
+  - 否则 Google OAuth 走完后可能不能创建 Clerk 用户。
+- 为什么登录后会看到服务健康检查页面？
+  - NovelComic 的 `/` 首页当前就是服务状态/health 页面。
+  - Google 登录成功后如果回跳 `/`，看到 Publisher、Consumer、Agent、AI 卡片是正常的。
+  - 这不是 health 检测挡住登录，而是登录后的目标页面还没做业务首页。
+- 为什么需要单独做 `/auth/success`？
+  - 当前项目没有真正的登录后首页。
+  - `/auth/success` 用来确认 Clerk Session 已激活，并显示 `userId`、`sessionId`。
+  - 这是开发阶段验证登录链路用的成功页，后面可以替换成真正业务首页。
+- 为什么一开始 Google OAuth 回跳不稳定？
+  - `authenticateWithRedirect()` 需要一个专门的回调页接住 Clerk OAuth 结果。
+  - 所以要有 `/sso-callback`，里面渲染 `AuthenticateWithRedirectCallback`。
+  - 没有这个页面时，Google 回来后 session 可能不会被正确激活。
+- 为什么要按 OpenCreator 做 OAuth popup，而不是整页跳转？
+  - OpenCreator 的 Google 登录是在弹窗里完成。
+  - 弹窗完成后通过 `window.opener.postMessage` 和 `BroadcastChannel` 通知主窗口。
+  - 主窗口收到消息后 reload Clerk client，再 `setActive()` 激活 session。
+  - 这种方式不会把主页面上下文直接跳走，体验更接近 OpenCreator。
+- 为什么 NovelComic 的样式一开始和 OpenCreator 不一样？
+  - 第一版只复用了登录逻辑，没有复用 OpenCreator 的视觉依赖。
+  - OpenCreator 使用 Tailwind、HeroUI、字体、SVG 图标、头像、视频和大量设计 token。
+  - NovelComic 当时只有一份 `index.css`，所以即使结构相似，显示也不会一样。
+- 为什么不能直接把 OpenCreator 的 className 原样复制过来？
+  - OpenCreator 的 `w-full`、`md:w-[30%]`、`rounded-xl`、`font-poller-one` 等都是 Tailwind class。
+  - NovelComic 没有 Tailwind 编译链，这些 class 不会生效。
+  - 要么引入 Tailwind/HeroUI，要么用普通 CSS 手动复刻关键视觉。
+- 为什么先不完整引入 Tailwind 和 HeroUI？
+  - 这是单独项目，早期只做 Google 登录，直接引入整套依赖会增加复杂度。
+  - 当前更稳的做法是先用原生 CSS 复刻登录页关键样式。
+  - 等登录链路稳定后，再决定是否升级为完整设计系统。
+- 为什么要补 Google SVG、头像和视频？
+  - OpenCreator 登录页的视觉差异不只来自布局。
+  - Google 按钮用真实 `social/google.svg`。
+  - 左侧展示区有头像叠放和裁剪视频。
+  - 少这些资源时页面只会“结构像”，但视觉不像。
+- 为什么只保留 Google 登录后要删除验证码/密码前端代码？
+  - 当前阶段明确只做 Google 登录。
+  - 未使用的验证码组件、设备指纹工具、邮箱/密码 API 会干扰阅读和维护。
+  - 删除前先确认没有引用，再跑 typecheck/test，保证清理是安全的。
+- 为什么后端验证码接口没有一起删？
+  - 这次清理目标是前端登录入口。
+  - 后端接口可能还会被文档、测试或后续阶段参考。
+  - 单独项目要一步一步来，先保证前端 Google-only 登录链路干净，再决定后端是否裁剪。
+
+- 为什么加了 OAuth popup 之后页面仍然不像 OpenCreator？
+  - OAuth popup 解决的是登录交互流程，不解决视觉还原。
+  - OpenCreator 的视觉依赖 Tailwind、HeroUI、字体、SVG、头像、视频和设计 token。
+  - NovelComic 只搬登录逻辑时，页面结构能跑通，但样式不会自动一致。
+- 为什么加了普通 CSS 还不能完全等同 OpenCreator？
+  - OpenCreator 的按钮、输入框、loading 状态来自 HeroUI 组件。
+  - 普通 CSS 只能复刻尺寸、颜色、圆角、间距，不能完全复刻组件库内部状态。
+  - 要像素级一致，要么引入同样组件库，要么逐项手写每个状态。
+- 为什么 Google 按钮必须补真实 SVG？
+  - 用字母 `G` 只是占位，看起来不像 OpenCreator。
+  - OpenCreator 用 `src/assets/social/google.svg`，颜色、比例和按钮对齐都由真实 SVG 决定。
+  - NovelComic 已补 `src/assets/social/google.svg` 并改为图片渲染。
+- 为什么要补头像叠放和裁剪视频？
+  - OpenCreator 左侧展示区不是纯背景色。
+  - 它包含彩色横条、用户头像叠放和裁剪形状视频。
+  - 少这些资源时，右侧登录框即使相似，整体页面也会明显不像。
+- 为什么没有直接安装 Tailwind 和 HeroUI？
+  - 当前项目只需要先完成 Google 登录入口。
+  - 一次性引入 Tailwind、HeroUI、PostCSS、主题配置和全局 token，会扩大改动面。
+  - 先用原生 CSS 补关键视觉，可以保持项目更轻，也方便逐步确认。
+- 为什么字体也会影响登录页观感？
+  - OpenCreator 的 `Welcome!` 和品牌字使用 `Poller One`，中文和正文使用 `Noto Sans SC`/`Roboto`。
+  - NovelComic 默认系统字体会导致字号、字重、字形都不同。
+  - 所以已在 `index.css` 里补字体引用，让右侧标题和品牌更接近 OpenCreator。
+- 为什么补了这些仍可能不是完全一样？
+  - 现在是“最小复刻”，不是完整迁移 OpenCreator 设计系统。
+  - Logo、Beta 图标、HeroUI loading、Tailwind 响应式细节和完整设计 token 仍未完全搬迁。
+  - 后续如果要求像素级一致，需要单独做一轮 UI 对齐，而不是继续混在登录逻辑里改。
+

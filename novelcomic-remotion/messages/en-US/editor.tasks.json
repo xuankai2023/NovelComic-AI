@@ -1,0 +1,29 @@
+{
+	"editor": {
+		"tasks": {
+			"ariaLabel": "Tasks",
+			"empty": "No tasks",
+			"leaveWarning": "Are you sure you want to leave while tasks are running?",
+			"renderAndCaptionsFailed": "Render and captions failed",
+			"renderFailed": "Render failed",
+			"captioningFailed": "Captioning failed",
+			"uploadingFiles": "Uploading {count} files",
+			"uploadingProgress": "Uploading {progress}%",
+			"uploadingFile": "Uploading {filename}",
+			"downloadingBytes": "Downloading {bytes}",
+			"captioningAndExporting": "Captioning and exporting",
+			"exportingFiles": "Exporting {count} files",
+			"exportingProgress": "Exporting {progress}%",
+			"exporting": "Exporting",
+			"captioningFiles": "Captioning {count} files",
+			"captioningInProgress": "Captioning in progress",
+			"exportCompleted": "Export completed",
+			"captioningCompleted": "Captioning completed",
+			"clearAll": "Clear all",
+			"dismiss": "Dismiss",
+			"download": "Download",
+			"mp4Export": "MP4 export",
+			"transcribingFile": "Transcribing {filename}"
+		}
+	}
+}

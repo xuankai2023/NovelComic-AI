@@ -1,0 +1,129 @@
+# 发布前冒烟。切流之后、成功通知之前调用同一份 scripts/release_smoke.py。
+# /health 已通但 run 或 callback 失败，本 job 失败。
+# 外部 DNS 还没切完、通知 webhook 失败只在日志里 warning，不证明 run 和 callback。
+# Consumer 排空计数是单独一步，不代替 Publisher 和 Agent 的 /health、/readyz。
+
+name: Release smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      slot_url:
+        description: 目标 slot，例如 http://127.0.0.1:8002
+        required: true
+        type: string
+      publisher_url:
+        description: Publisher 根地址
+        required: true
+        type: string
+      consumer_url:
+        description: Consumer 根地址
+        required: true
+        type: string
+      flow_id:
+        description: 冒烟账号自己的 flow project
+        required: true
+        type: string
+      external_url:
+        description: 外部 DNS。还没切完只记 warning
+        required: false
+        type: string
+        default: ""
+      events_url:
+        description: WS 或 SSE 终态地址。空则读 Publisher run events
+        required: false
+        type: string
+        default: ""
+      verify_consumer_drain:
+        description: 再跑 verify_bluegreen_drain.py。不代替探活
+        required: false
+        type: boolean
+        default: false
+      consumer_drain_url:
+        description: 排空计数要打的 Consumer 根地址
+        required: false
+        type: string
+        default: ""
+  workflow_call:
+    inputs:
+      slot_url:
+        required: true
+        type: string
+      publisher_url:
+        required: true
+        type: string
+      consumer_url:
+        required: true
+        type: string
+      flow_id:
+        required: true
+        type: string
+      external_url:
+        required: false
+        type: string
+        default: ""
+      events_url:
+        required: false
+        type: string
+        default: ""
+      verify_consumer_drain:
+        required: false
+        type: boolean
+        default: false
+      consumer_drain_url:
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 发布前冒烟
+        env:
+          SMOKE_EMAIL: ${{ secrets.SMOKE_EMAIL }}
+          SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
+          SMOKE_CONSUMER_URL: ${{ inputs.consumer_url }}
+          SMOKE_FLOW_ID: ${{ inputs.flow_id }}
+          SMOKE_EXTERNAL_URL: ${{ inputs.external_url }}
+          SMOKE_EVENTS_URL: ${{ inputs.events_url }}
+          SMOKE_NOTIFY_WEBHOOK: ${{ secrets.SMOKE_NOTIFY_WEBHOOK }}
+          CONSUMER_WEBHOOK_SECRET: ${{ secrets.CONSUMER_WEBHOOK_SECRET }}
+        run: |
+          python3 scripts/release_smoke.py \
+            --slot-url "${{ inputs.slot_url }}" \
+            --publisher-url "${{ inputs.publisher_url }}" \
+            --log release-smoke.log
+
+      - name: 取出 Consumer 排空脚本
+        if: ${{ inputs.verify_consumer_drain }}
+        uses: actions/checkout@v4
+        with:
+          repository: xuankai2023/novelcomic-consumer
+          ref: develop
+          path: novelcomic-consumer
+          token: ${{ secrets.CROSS_REPO_READ_TOKEN }}
+
+      - name: Consumer 排空计数
+        if: ${{ inputs.verify_consumer_drain }}
+        run: |
+          python3 novelcomic-consumer/scripts/verify_bluegreen_drain.py \
+            --base-url "${{ inputs.consumer_drain_url }}" \
+            --timeout-seconds 300
+
+      - name: 保存冒烟日志
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-smoke
+          path: release-smoke.log
+          if-no-files-found: warn

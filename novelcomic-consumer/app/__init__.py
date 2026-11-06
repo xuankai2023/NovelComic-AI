@@ -1,0 +1,1 @@
+"""NovelComic consumer application."""

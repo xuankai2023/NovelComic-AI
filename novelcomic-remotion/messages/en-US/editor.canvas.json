@@ -1,0 +1,18 @@
+{
+	"editor": {
+		"canvas": {
+			"zoom": {
+				"triggerAriaLabel": "Adjust canvas zoom",
+				"panelTitle": "Size",
+				"sliderAriaLabel": "Canvas zoom",
+				"fit": "Fit",
+				"presetFit": "Fit to screen",
+				"presetPercent": "Zoom to {percent}%"
+			},
+			"aspectRatio": {
+				"triggerAriaLabel": "Select canvas aspect ratio",
+				"menuAriaLabel": "Canvas aspect ratio presets"
+			}
+		}
+	}
+}

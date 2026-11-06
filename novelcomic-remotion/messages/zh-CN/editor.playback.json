@@ -1,0 +1,19 @@
+{
+	"editor": {
+		"playback": {
+			"play": "播放",
+			"pause": "暂停",
+			"currentTime": "当前时间",
+			"projectDuration": "工程时长",
+			"zoom": "缩放",
+			"zoomIn": "放大时间轴",
+			"zoomOut": "缩小时间轴",
+			"mute": "静音",
+			"unmute": "取消静音",
+			"loop": "循环播放",
+			"goToStart": "跳到开头",
+			"goToEnd": "跳到结尾",
+			"fullscreen": "全屏"
+		}
+	}
+}

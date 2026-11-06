@@ -1,0 +1,17 @@
+{
+	"editor": {
+		"feedback": {
+			"upload": {
+				"failed": "Failed to upload",
+				"retry": "Retry",
+				"fileTooLarge": "The file is too large to upload",
+				"fileTooLargeTitle": "File too large",
+				"noCredentialsTitle": "No credentials",
+				"processingFailed": "Error processing asset"
+			},
+			"clipboard": {
+				"readDenied": "Not allowed to read clipboard"
+			}
+		}
+	}
+}

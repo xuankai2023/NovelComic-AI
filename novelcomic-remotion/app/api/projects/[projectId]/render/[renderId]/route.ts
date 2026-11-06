@@ -1,0 +1,8 @@
+import {jsonBody, respond, withCompositorErrors} from '../../../../../../src/server/compositor-http';
+import {startCompositorRender} from '../../../../../../src/server/compositor-render';
+import {compositorStore} from '../../../../../../src/server/compositor-store';
+export const runtime = 'nodejs';
+type Context = {params: Promise<{projectId: string; renderId: string}>};
+export async function GET(_request: Request, context: Context) { return withCompositorErrors(async () => { const {projectId, renderId} = await context.params; return respond({render: compositorStore.getRenderJob(projectId, renderId)}); }); }
+export async function POST(request: Request, context: Context) { return withCompositorErrors(async () => { const {projectId, renderId} = await context.params; const body = await jsonBody(request); if (body.action === 'retry') { const previous = compositorStore.getRenderJob(projectId, renderId); const retry = compositorStore.createRenderJob(projectId, {revision: previous.inputRevision, kind: previous.kind, format: previous.format, ...(previous.frame === undefined ? {} : {frame: previous.frame}), ...(previous.startFrame === undefined ? {} : {startFrame: previous.startFrame}), ...(previous.endFrame === undefined ? {} : {endFrame: previous.endFrame}), maxAttempts: previous.maxAttempts}); startCompositorRender(retry); return respond({render: retry}, {status: 202}); } return respond({render: compositorStore.getRenderJob(projectId, renderId)}); }); }
+export async function DELETE(_request: Request, context: Context) { return withCompositorErrors(async () => { const {projectId, renderId} = await context.params; return respond({render: compositorStore.cancelRender(projectId, renderId)}); }); }

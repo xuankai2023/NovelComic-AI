@@ -1,0 +1,29 @@
+{
+	"editor": {
+		"tasks": {
+			"ariaLabel": "任务",
+			"empty": "暂无任务",
+			"leaveWarning": "当前有任务正在进行，确定要离开吗？",
+			"renderAndCaptionsFailed": "导出和字幕生成失败",
+			"renderFailed": "导出失败",
+			"captioningFailed": "字幕生成失败",
+			"uploadingFiles": "正在上传 {count} 个文件",
+			"uploadingProgress": "正在上传 {progress}%",
+			"uploadingFile": "正在上传 {filename}",
+			"downloadingBytes": "正在下载 {bytes}",
+			"captioningAndExporting": "正在生成字幕并导出",
+			"exportingFiles": "正在导出 {count} 个文件",
+			"exportingProgress": "正在导出 {progress}%",
+			"exporting": "正在导出",
+			"captioningFiles": "正在生成 {count} 个文件的字幕",
+			"captioningInProgress": "正在生成字幕",
+			"exportCompleted": "导出完成",
+			"captioningCompleted": "字幕生成完成",
+			"clearAll": "清除全部",
+			"dismiss": "关闭",
+			"download": "下载",
+			"mp4Export": "MP4 导出",
+			"transcribingFile": "正在转写 {filename}"
+		}
+	}
+}

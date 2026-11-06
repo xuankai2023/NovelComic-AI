@@ -1,0 +1,42 @@
+# 夜间矩阵只 checkout revision-manifest.json 里的 commit。
+# 格子失败则本 job 失败。外部模型是单独一步，不代替上面的七格。
+
+name: Nightly matrix
+
+on:
+  schedule:
+    # 北京时间 00:00
+    - cron: "0 16 * * *"
+  workflow_dispatch:
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 校验 revision manifest
+        run: python3 scripts/nightly_matrix.py validate --manifest revision-manifest.json --repo .
+
+      - name: 跑七格矩阵
+        run: python3 scripts/nightly_matrix.py run --manifest revision-manifest.json --repo . --artifact-dir nightly-artifacts
+
+      - name: 外部模型
+        run: python3 scripts/nightly_matrix.py external --manifest revision-manifest.json --repo . --artifact-dir nightly-artifacts
+
+      - name: 保存夜间产物
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-matrix
+          path: nightly-artifacts
+          if-no-files-found: warn

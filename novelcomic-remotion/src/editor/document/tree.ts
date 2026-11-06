@@ -1,0 +1,4 @@
+import type {DocumentState, LayerNode} from './types';
+export const childLayerIds = (document: DocumentState, parentId: string | null): string[] => Object.values(document.layers).filter((layer) => layer.parentId === parentId).sort((a, b) => a.order - b.order).map((layer) => layer.id);
+export const isDescendant = (document: DocumentState, candidateId: string, ancestorId: string): boolean => { let current = document.layers[candidateId]?.parentId ?? null; while (current) { if (current === ancestorId) return true; current = document.layers[current]?.parentId ?? null; } return false; };
+export const flattenLayerTree = (document: DocumentState): LayerNode[] => { const result: LayerNode[] = []; const visit = (parent: string | null) => { for (const id of childLayerIds(document, parent)) { const layer = document.layers[id]; result.push(layer); if (layer.kind === 'group') visit(layer.id); } }; visit(null); return result; };

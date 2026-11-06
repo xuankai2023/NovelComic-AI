@@ -1,0 +1,5 @@
+"""Share-specific response codes."""
+
+SHARE_NOT_FOUND = 1040
+SHARE_FORBIDDEN = 1041
+SHARE_SOURCE_NOT_FOUND = 1042

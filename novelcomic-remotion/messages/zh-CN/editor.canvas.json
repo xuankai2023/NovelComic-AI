@@ -1,0 +1,18 @@
+{
+	"editor": {
+		"canvas": {
+			"zoom": {
+				"triggerAriaLabel": "调整画布缩放",
+				"panelTitle": "大小",
+				"sliderAriaLabel": "画布缩放",
+				"fit": "适应窗口",
+				"presetFit": "缩放至适当大小",
+				"presetPercent": "缩放至 {percent}%"
+			},
+			"aspectRatio": {
+				"triggerAriaLabel": "选择画布比例",
+				"menuAriaLabel": "画布比例预设"
+			}
+		}
+	}
+}
